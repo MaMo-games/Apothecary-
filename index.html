@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محاكاة الصيدلي المصري</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts Arabic -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:ital,wght@0,300;0,700;1,300&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pharmacy: {
+                            light: '#e8f5e9',
+                            DEFAULT: '#2e7d32',
+                            dark: '#1b5e20',
+                            accent: '#00c853',
+                            neon: '#00e676',
+                            gold: '#ffb300'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Cairo', sans-serif;
+            background-color: #070b19;
+            color: #f8fafc;
+            user-select: none;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+
+        .pharmacy-cross {
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 4px #00e676); }
+            100% { filter: drop-shadow(0 0 14px #00e676); }
+        }
+
+        .customer-card {
+            transition: all 0.2s ease;
+        }
+        .customer-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .shelf-item {
+            transition: all 0.15s ease-in-out;
+        }
+        .shelf-item:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Animated Title Reveal Effect */
+        .word-reveal {
+            opacity: 0;
+            transform: scale(0.6) translateY(20px);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden relative">
+
+    <!-- SPLASH: logo -> presents -> Apothecary -->
+    <div id="splash" onclick="skipSplash()" style="position:fixed;inset:0;z-index:100;background:#ffffff;cursor:pointer;overflow:hidden;transition:background .8s ease,opacity .7s ease">
+        <div id="sp-logo" class="sp-stage" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:min(80vw,560px)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 300" width="100%" style="display:block;height:auto;aspect-ratio:780/300;direction:ltr;unicode-bidi:isolate;letter-spacing:normal;word-spacing:normal;text-align:left" preserveAspectRatio="xMidYMid meet" role="img" aria-label="MaMo Software Company">
+  <rect width="780" height="300" fill="#ffffff"/>
+  
+  <g fill="none" stroke-width="28" stroke-linecap="round" transform="translate(0,12)">
+    <path d="M62 215 V140 a42 42 0 0 1 84 0 V215" stroke="#0d9488"/>
+    <path d="M124 215 V140 a42 42 0 0 1 84 0 V215" stroke="#f59e0b" style="mix-blend-mode:multiply" opacity="0.92"/>
+  </g>
+  
+  <text x="270" y="224" font-family="Poppins, 'Segoe UI', Arial, Helvetica, sans-serif" font-size="120" font-weight="700" textLength="420" lengthAdjust="spacingAndGlyphs" fill="#0f172a">M<tspan fill="#0d9488">a</tspan>M<tspan fill="#f59e0b">o</tspan></text>
+  <text x="272" y="262" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="17" font-weight="600" textLength="416" lengthAdjust="spacing" fill="#64748b">SOFTWARE COMPANY</text>
+</svg>
+</div></div>
+        <div id="sp-presents" class="sp-stage" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-family:'Poppins','Segoe UI',Arial,sans-serif;font-style:italic;font-weight:300;font-size:clamp(20px,4vw,30px);letter-spacing:.35em">presents</div>
+        <div id="sp-title" class="sp-stage" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,24px);direction:ltr">
+            <span style="color:#f8fafc;font-family:'Cinzel','Times New Roman',serif;font-weight:700;font-size:clamp(34px,8vw,72px);letter-spacing:.12em">Apothecary</span>
+            <svg viewBox="0 0 100 152" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="height:clamp(65px,15vw,105px);width:auto;flex:none">
+  <path d="M66.9 130.4 L66.5 130.0 L66.0 129.6 L65.1 129.2 L64.1 128.8 L62.9 128.4 L61.4 128.0 L59.9 127.6 L58.1 127.2 L56.3 126.8 L54.3 126.4 L52.3 126.0 L50.3 125.6 L48.2 125.2 L46.2 124.8 L44.3 124.5 L42.4 124.1 L40.6 123.7 L39.0 123.3 L37.5 122.9 L36.2 122.5 L35.1 122.1 L34.2 121.7 L33.6 121.3 L33.2 120.9 L33.0 120.5 L33.1 120.1" fill="none" stroke="#047857" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M66.9 109.7 L66.7 109.3 L66.1 108.9 L65.4 108.5 L64.4 108.1 L63.2 107.7 L61.8 107.3 L60.3 106.9 L58.6 106.5 L56.8 106.1 L54.8 105.7 L52.9 105.4 L50.8 105.0 L48.8 104.6 L46.8 104.2 L44.8 103.8 L42.9 103.4 L41.1 103.0 L39.4 102.6 L37.9 102.2 L36.5 101.8 L35.4 101.4 L34.5 101.0 L33.7 100.6 L33.3 100.2 L33.0 99.8 L33.0 99.4" fill="none" stroke="#047857" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M67.0 89.0 L66.8 88.6 L66.3 88.2 L65.6 87.8 L64.7 87.4 L63.5 87.0 L62.2 86.6 L60.7 86.3 L59.1 85.9 L57.3 85.5 L55.4 85.1 L53.4 84.7 L51.4 84.3 L49.3 83.9 L47.3 83.5 L45.3 83.1 L43.4 82.7 L41.5 82.3 L39.8 81.9 L38.3 81.5 L36.9 81.1 L35.7 80.7 L34.7 80.3 L33.9 79.9 L33.4 79.5 L33.1 79.1 L33.0 78.7" fill="none" stroke="#047857" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M67.0 68.3 L66.8 67.9 L66.4 67.5 L65.8 67.2 L64.9 66.8 L63.9 66.4 L62.6 66.0 L61.1 65.6 L59.5 65.2 L57.7 64.8 L55.9 64.4 L53.9 64.0 L51.9 63.6 L49.9 63.2 L47.8 62.8 L45.8 62.4 L43.9 62.0 L42.0 61.6 L40.3 61.2 L38.7 60.8 L37.2 60.4 L36.0 60.0 L34.9 59.6 L34.1 59.2 L33.5 58.8 L33.1 58.4 L33.0 58.0" fill="none" stroke="#047857" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="46" y="50" width="8" height="82" fill="#92400e"/>
+  <rect x="47.4" y="50" width="2" height="82" fill="#b45309"/>
+  <rect x="40" y="44" width="20" height="7" rx="1.5" fill="#f59e0b"/>
+  <rect x="43" y="51" width="14" height="3" fill="#b45309"/>
+  <rect x="26" y="130" width="48" height="7" rx="1" fill="#b45309"/>
+  <rect x="18" y="137" width="64" height="11" rx="1.5" fill="#92400e"/>
+  <path d="M24 142.5 H76" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 2.5" opacity=".7"/>
+  <path d="M59.6 134.0 L61.2 133.6 L62.7 133.2 L63.9 132.8 L65.0 132.4 L65.9 132.0 L66.5 131.6 L66.9 131.2 L67.0 130.8 L66.9 130.4" fill="none" stroke="#10b981" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.1 120.1 L33.4 119.7 L33.9 119.3 L34.7 118.9 L35.7 118.5 L37.0 118.1 L38.4 117.7 L39.9 117.3 L41.6 116.9 L43.5 116.5 L45.4 116.1 L47.4 115.7 L49.4 115.3 L51.5 114.9 L53.5 114.5 L55.5 114.1 L57.4 113.7 L59.1 113.3 L60.8 112.9 L62.3 112.5 L63.6 112.1 L64.7 111.7 L65.6 111.3 L66.3 110.9 L66.8 110.5 L67.0 110.1 L66.9 109.7" fill="none" stroke="#10b981" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.0 99.4 L33.3 99.0 L33.8 98.6 L34.5 98.2 L35.5 97.8 L36.6 97.4 L38.0 97.0 L39.5 96.6 L41.2 96.2 L43.0 95.8 L44.9 95.4 L46.9 95.0 L48.9 94.6 L50.9 94.2 L53.0 93.8 L55.0 93.4 L56.9 93.0 L58.7 92.6 L60.4 92.2 L61.9 91.8 L63.3 91.4 L64.5 91.0 L65.4 90.6 L66.2 90.2 L66.7 89.8 L67.0 89.4 L67.0 89.0" fill="none" stroke="#10b981" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.0 78.7 L33.2 78.3 L33.6 77.9 L34.3 77.5 L35.2 77.1 L36.3 76.7 L37.6 76.3 L39.1 75.9 L40.7 75.5 L42.5 75.1 L44.4 74.7 L46.3 74.3 L48.4 73.9 L50.4 73.5 L52.4 73.1 L54.4 72.7 L56.4 72.3 L58.2 71.9 L59.9 71.5 L61.5 71.1 L62.9 70.7 L64.2 70.3 L65.2 69.9 L66.0 69.5 L66.6 69.1 L66.9 68.7 L67.0 68.3" fill="none" stroke="#10b981" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M59.6 134.0 L61.2 133.6 L62.7 133.2 L63.9 132.8 L65.0 132.4 L65.9 132.0 L66.5 131.6 L66.9 131.2 L67.0 130.8 L66.9 130.4" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><path d="M33.1 120.1 L33.4 119.7 L33.9 119.3 L34.7 118.9 L35.7 118.5 L37.0 118.1 L38.4 117.7 L39.9 117.3 L41.6 116.9 L43.5 116.5 L45.4 116.1 L47.4 115.7 L49.4 115.3 L51.5 114.9 L53.5 114.5 L55.5 114.1 L57.4 113.7 L59.1 113.3 L60.8 112.9 L62.3 112.5 L63.6 112.1 L64.7 111.7 L65.6 111.3 L66.3 110.9 L66.8 110.5 L67.0 110.1 L66.9 109.7" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><path d="M33.0 99.4 L33.3 99.0 L33.8 98.6 L34.5 98.2 L35.5 97.8 L36.6 97.4 L38.0 97.0 L39.5 96.6 L41.2 96.2 L43.0 95.8 L44.9 95.4 L46.9 95.0 L48.9 94.6 L50.9 94.2 L53.0 93.8 L55.0 93.4 L56.9 93.0 L58.7 92.6 L60.4 92.2 L61.9 91.8 L63.3 91.4 L64.5 91.0 L65.4 90.6 L66.2 90.2 L66.7 89.8 L67.0 89.4 L67.0 89.0" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><path d="M33.0 78.7 L33.2 78.3 L33.6 77.9 L34.3 77.5 L35.2 77.1 L36.3 76.7 L37.6 76.3 L39.1 75.9 L40.7 75.5 L42.5 75.1 L44.4 74.7 L46.3 74.3 L48.4 73.9 L50.4 73.5 L52.4 73.1 L54.4 72.7 L56.4 72.3 L58.2 71.9 L59.9 71.5 L61.5 71.1 L62.9 70.7 L64.2 70.3 L65.2 69.9 L66.0 69.5 L66.6 69.1 L66.9 68.7 L67.0 68.3" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/>
+  <path d="M33 58 C21 48 20 30 27 17 C32 5 46 0 55 6" fill="none" stroke="#10b981" stroke-width="6.4" stroke-linecap="round"/>
+  <path d="M33 58 C21 48 20 30 27 17 C32 5 46 0 55 6" fill="none" stroke="#6ee7b7" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+  <rect x="48.5" y="35" width="3" height="10" fill="#fbbf24"/>
+  <ellipse cx="50" cy="44.5" rx="6.5" ry="2" fill="#f59e0b"/>
+  <path d="M34 14 H66 C66 28 58 36 50 36 C42 36 34 28 34 14 Z" fill="#f59e0b"/>
+  <path d="M38 17 C39 25 43 30 47 32" fill="none" stroke="#fde68a" stroke-width="1.8" stroke-linecap="round" opacity=".8"/>
+  <ellipse cx="50" cy="14" rx="16" ry="3.6" fill="#fcd34d"/>
+  <ellipse cx="50" cy="14" rx="16" ry="3.6" fill="none" stroke="#fbbf24" stroke-width="1.6"/>
+  <ellipse cx="57.5" cy="9" rx="7" ry="4.6" transform="rotate(38 57.5 9)" fill="#10b981"/>
+  <circle cx="58.8" cy="7.6" r="1.3" fill="#020617"/>
+  <path d="M62 12.5 L66 16.5 M66 16.5 L68.5 15 M66 16.5 L67.5 19" stroke="#f43f5e" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+  <g fill="#059669" opacity=".9">
+    <ellipse cx="20" cy="136" rx="6" ry="2.3" transform="rotate(-35 20 136)"/><ellipse cx="14" cy="128" rx="5.5" ry="2.1" transform="rotate(-60 14 128)"/>
+    <ellipse cx="80" cy="136" rx="6" ry="2.3" transform="rotate(35 80 136)"/><ellipse cx="86" cy="128" rx="5.5" ry="2.1" transform="rotate(60 86 128)"/>
+  </g>
+  <path d="M26 143 Q20 138 17 130 M74 143 Q80 138 83 130" fill="none" stroke="#059669" stroke-width="1.1" stroke-linecap="round"/>
+</svg>
+        </div>
+    </div>
+    <style>.sp-stage{opacity:0;transition:opacity .8s ease,transform .8s ease;transform:scale(.97);pointer-events:none}.sp-stage.on{opacity:1;transform:scale(1)}</style>
+    <script>
+        window.__splashDone = false;
+        window.__onSplashDone = null;
+        (function () {
+            const sp = document.getElementById('splash');
+            const L = document.getElementById('sp-logo'), P = document.getElementById('sp-presents'), T = document.getElementById('sp-title');
+            const timers = [];
+            const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+            window.skipSplash = function () { finish(); };
+            function finish() {
+                if (window.__splashDone) return;
+                window.__splashDone = true;
+                timers.forEach(clearTimeout);
+                sp.style.opacity = '0';
+                sp.style.pointerEvents = 'none';
+                setTimeout(() => { sp.remove(); }, 750);
+                if (window.__onSplashDone) window.__onSplashDone();
+            }
+            at(150,  () => L.classList.add('on'));                       // الشعار يظهر
+            at(3150, () => { L.classList.remove('on'); });                  // بعد 3 ثواني الشعار يختفي
+            at(4050, () => { sp.style.background = '#020617'; });           // وبعد ما يختفي خالص الخلفية تبقى داكنة
+            at(4950, () => P.classList.add('on'));                          // presents
+            at(6650, () => P.classList.remove('on'));
+            at(7450, () => T.classList.add('on'));                          // Apothecary + الكأس والتعبان
+            at(10150, finish);
+        })();
+    </script>
+
+
+    <!-- INTRO OVERLAY SCREEN (CATCHY INTRO) -->
+    <div id="intro-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none overflow-y-auto">
+        <div class="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-b from-emerald-950/30 via-slate-950 to-slate-950"></div>
+        
+        <!-- Glowing Pharmacy Logo Icon -->
+        <div class="relative mb-6">
+            <div class="w-24 h-24 bg-emerald-600 rounded-3xl flex items-center justify-center text-white text-5xl font-black shadow-2xl pharmacy-cross mx-auto border-2 border-emerald-400">
+                <i class="fa-solid fa-square-plus"></i>
+            </div>
+        </div>
+
+        <!-- Sequential Word Container -->
+        <div id="intro-words" class="relative z-10 flex flex-wrap justify-center items-center gap-2 sm:gap-4 mb-8 max-w-2xl min-h-[90px] px-4">
+            <!-- Dynamic Words Injected via JS with delays -->
+        </div>
+
+        <p id="intro-subtext" class="relative z-10 mb-6 opacity-0 transition-opacity duration-700"></p>
+
+        <div id="intro-actions" class="relative z-10 opacity-0 transition-opacity duration-700 flex flex-col gap-3 w-full max-w-sm">
+            <div class="text-right text-xs font-bold text-slate-400"><i class="fa-solid fa-user-doctor ml-1 text-emerald-400"></i> اختار ملفك أو اعمل ملف جديد:</div>
+            <div id="profile-list" class="flex flex-col gap-2 max-h-40 overflow-y-auto"></div>
+            <div class="text-right text-xs font-bold text-slate-400"><i class="fa-solid fa-house-medical ml-1 text-emerald-400"></i> اختار اسم صيدليتك:</div>
+            <input id="pharmacy-name-input" type="text" maxlength="30" placeholder="مثال: صيدلية النور" onchange="commitPharmacyName()" onkeydown="if(event.key==='Enter')commitPharmacyName()" style="user-select:text;-webkit-user-select:text" class="w-full min-w-0 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-emerald-500">
+            <input id="new-profile-name" type="text" maxlength="20" placeholder="اسم اللاعب الجديد" onkeydown="if(event.key==='Enter')document.getElementById('new-profile-pin').focus()" style="user-select:text;-webkit-user-select:text" class="w-full min-w-0 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-emerald-500">
+            <div class="flex gap-2">
+                <input id="new-profile-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="باسورد من 4 أرقام" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')createProfile()" style="user-select:text;-webkit-user-select:text" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-emerald-500">
+                <button onclick="createProfile()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-black text-sm border border-slate-700 whitespace-nowrap"><i class="fa-solid fa-user-plus ml-1"></i> إضافة</button>
+            </div>
+            <p id="profile-msg" class="text-xs text-rose-400 font-bold min-h-[1rem]"></p>
+            <button id="btn-start-game" onclick="startGameFromIntro()" disabled class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-lg rounded-2xl shadow-xl transition transform hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <i class="fa-solid fa-play ml-2"></i> ابدأ الشيفت يا دكتور
+            </button>
+            <button id="btn-exit-app" onclick="exitGameFully()" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-base rounded-2xl shadow-xl transition transform hover:scale-105">
+                <i class="fa-solid fa-right-from-bracket ml-2"></i> خروج من اللعبة
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN GAME HEADER (STAYS FIXED AT TOP) -->
+    <header class="h-16 bg-slate-900/95 border-b border-slate-800 px-4 flex items-center justify-between shrink-0 shadow-md z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-xl font-black shadow pharmacy-cross shrink-0">
+                <i class="fa-solid fa-square-plus"></i>
+            </div>
+            <div>
+                <h1 id="pharmacy-title" class="font-black text-lg sm:text-xl text-emerald-400 leading-tight">صيدليتك</h1>
+                <p class="text-[11px] text-slate-400 font-semibold">خدمة طبية 24 ساعة - أحسن دواء لأحسن ناس</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Game Stats Bar -->
+        <div class="hidden sm:flex items-center gap-5 bg-slate-950/80 px-4 py-1.5 rounded-xl border border-slate-800 text-xs">
+            <div class="text-center">
+                <span class="text-[10px] text-slate-400 block font-bold">المرحلة</span>
+                <span id="level-disp" class="font-black text-amber-400 text-sm">1</span> / <span class="text-slate-400 font-bold text-xs">50</span>
+            </div>
+            <div class="h-6 w-px bg-slate-800"></div>
+            <div class="text-center">
+                <span class="text-[10px] text-slate-400 block font-bold">الإيراد الحالي / المستهدف</span>
+                <div class="text-sm font-black text-emerald-400">
+                    <span id="money-disp">0</span> / <span id="target-disp" class="text-slate-300">500</span> ج.م
+                </div>
+            </div>
+            <div class="h-6 w-px bg-slate-800"></div>
+            <div class="text-center">
+                <span class="text-[10px] text-slate-400 block font-bold">سمعة الصيدلية</span>
+                <div class="flex items-center text-amber-400 font-bold text-xs" id="rating-stars">
+                    <!-- Dynamic Stars -->
+                </div>
+            </div>
+            <div class="h-6 w-px bg-slate-800"></div>
+            <div class="text-center">
+                <span class="text-[10px] text-slate-400 block font-bold">الوقت المتبقي</span>
+                <div class="text-sm font-black text-cyan-400 font-mono flex items-center justify-center gap-1">
+                    <i class="fa-regular fa-clock text-[10px]"></i>
+                    <span id="timer-disp">10:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Header Controls (No Pause Button) -->
+        <div class="flex items-center gap-2">
+            <span id="player-chip" class="hidden sm:inline-flex items-center px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-bold text-amber-400"></span>
+            <button onclick="openSettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition">
+                <i class="fa-solid fa-gear ml-1 text-emerald-400"></i> الإعدادات
+            </button>
+            <button onclick="openExitModal()" class="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 rounded-xl text-xs font-bold border border-rose-800/60 transition">
+                <i class="fa-solid fa-power-off ml-1"></i> إغلاق
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE STATS STRIP (VISIBLE ON SMALL SCREENS ONLY) -->
+    <div class="sm:hidden bg-slate-900 border-b border-slate-800 px-3 py-1.5 flex justify-between items-center text-xs shrink-0">
+        <div>م مرحلة <span id="level-disp-mb" class="font-black text-amber-400">1</span>/50</div>
+        <div class="font-black text-emerald-400"><span id="money-disp-mb">0</span> / <span id="target-disp-mb">500</span> ج.م</div>
+        <div class="font-mono text-cyan-400 font-bold" id="timer-disp-mb">10:00</div>
+    </div>
+
+    <!-- MAIN VIEWPORT CONTENT (FILLS EXACT REMAINING HEIGHT 100vh) -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 min-h-0 overflow-hidden">
+
+        <!-- LEFT COLUMN: CUSTOMERS QUEUE & DESK COUNTER (Lg: 5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-2 min-h-0 h-full">
+            
+            <!-- Queue Status Strip -->
+            <div class="bg-slate-900 px-3 py-2 rounded-xl border border-slate-800 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+                    <h2 class="font-bold text-slate-200 text-xs">طابور الانتظار</h2>
+                </div>
+                <div class="text-[11px] bg-slate-950 px-2.5 py-0.5 rounded-lg text-slate-400 border border-slate-800 font-bold">
+                    المتواجدين: <span id="queue-count" class="text-emerald-400 font-black">0</span> / <span id="max-queue-disp" class="text-slate-300">2</span>
+                </div>
+            </div>
+
+            <!-- Scrollable Customer List (Takes Dynamic Height) -->
+            <div id="customers-container" class="flex-1 overflow-y-auto pr-1 space-y-2 min-h-0">
+                <!-- Customer Cards injected dynamically -->
+            </div>
+
+            <!-- Consultation Desk Block -->
+            <div id="active-desk" class="bg-slate-900 border border-emerald-600/60 p-3.5 rounded-xl shadow-lg shrink-0 flex flex-col justify-between min-h-[220px]">
+                
+                <div id="active-desk-empty" class="h-full flex flex-col items-center justify-center text-slate-500 text-center py-6">
+                    <i class="fa-solid fa-hospital-user text-4xl mb-2 text-slate-700"></i>
+                    <p class="font-bold text-xs">اضغط على أي عميل من الطابور لبدء الاستشارة وصرف الدواء</p>
+                </div>
+
+                <div id="active-desk-content" class="hidden flex-col justify-between h-full space-y-3">
+                    <!-- Customer Header -->
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <div class="flex items-center gap-2.5">
+                            <div id="active-avatar" class="w-11 h-11 rounded-xl bg-emerald-950 flex items-center justify-center text-2xl border border-emerald-500/50 shrink-0">
+                                👨‍💼
+                            </div>
+                            <div>
+                                <h3 id="active-name" class="font-black text-emerald-400 text-sm">الحاج بسيوني</h3>
+                                <span id="active-type-badge" class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">
+                                    طلب دواء بالاسم
+                                </span>
+                            </div>
+                        </div>
+
+                        <button onclick="speakActiveCustomer()" class="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition flex items-center gap-1 shrink-0">
+                            <i class="fa-solid fa-volume-high"></i> نطق الشكوى
+                        </button>
+                    </div>
+
+                    <!-- Customer Dialogue Box -->
+                    <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-amber-200 text-xs font-bold leading-relaxed relative">
+                        <p id="active-dialog">"يا دكتور حاسس بصداع شديد ومحتاج حاجة مسكنة الله يخليك!"</p>
+                    </div>
+
+                    <!-- Dispense Target & Action -->
+                    <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center justify-between gap-2">
+                        <div class="text-[11px] text-slate-400 truncate">
+                            المحدد: <span id="selected-medicine-name" class="font-black text-emerald-400 text-xs">لم يتم اختيار دواء</span>
+                        </div>
+
+                        <button id="btn-dispense" onclick="dispenseMedicine()" disabled 
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-black rounded-lg transition text-xs shadow shrink-0 flex items-center gap-1.5">
+                            <i class="fa-solid fa-hand-holding-medical"></i> صرف الدواء
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: PHARMACY SHELVES, SEARCH & CATEGORIES (Lg: 7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-xl min-h-0 h-full">
+
+            <!-- Search & Filters Container -->
+            <div class="space-y-2 bg-slate-950 p-2.5 rounded-lg border border-slate-800 shrink-0 mb-2">
+                <!-- Search Box -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-slate-500 text-xs"></i>
+                    <input type="text" id="search-input" oninput="filterMedicines()" 
+                           placeholder="ابحث باسم الدواء، الأعراض، أو الشكوى (مثال: صداع، مغص، بندول...)" 
+                           class="w-full pr-9 pl-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-xs font-semibold transition">
+                </div>
+
+                <!-- Category Tabs Carousel -->
+                <div class="flex gap-1.5 overflow-x-auto pb-0.5 text-[11px] font-bold" id="category-tabs">
+                    <button onclick="setCategory('ALL')" class="cat-btn active px-3 py-1 rounded-lg bg-emerald-600 text-white whitespace-nowrap shadow">الكل</button>
+                    <button onclick="setCategory('PAIN')" class="cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap">مسكنات وصداع</button>
+                    <button onclick="setCategory('COLD')" class="cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap">برد وسعال</button>
+                    <button onclick="setCategory('STOMACH')" class="cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap">معدة ومغص</button>
+                    <button onclick="setCategory('ANTIBIOTIC')" class="cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap">مضادات حيوية</button>
+                    <button onclick="setCategory('VITAMINS')" class="cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap">فيتامينات</button>
+                    <button onclick="setCategory('TOPICAL')" class="cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap">مراهم بدهانات</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Medicines Grid (Takes Dynamic Height cleanly) -->
+            <div class="flex-1 overflow-y-auto pr-1 min-h-0">
+                <div id="medicines-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                    <!-- Medicine Cards injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Bottom Quick Info Bar -->
+            <div class="mt-2 pt-2 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400 shrink-0">
+                <span>تأكد من مطابقة الدواء مع حالة الزبون لتفادي انخفاض التقييم</span>
+                <button onclick="showPharmacistGuide()" class="text-emerald-400 hover:underline font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-book-medical"></i> دليل الأدوية
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: SETTINGS & LEVEL SELECTOR -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-5 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                <h3 class="text-base font-black text-emerald-400 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> إعدادات الصيدلية واسترجاع المراحل (50 مرحلة)
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs overflow-y-auto pr-1 flex-1">
+                <!-- Sound Volume Slider -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="flex justify-between mb-1.5">
+                        <label class="font-bold text-slate-300">مستوى المؤثرات الصوتية (SFX)</label>
+                        <span id="vol-disp" class="text-emerald-400 font-black">80%</span>
+                    </div>
+                    <input type="range" id="setting-volume" min="0" max="100" value="80" oninput="updateSettings()" class="w-full accent-emerald-500">
+                </div>
+
+                <!-- Concurrent Customers Slider -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="flex justify-between mb-1.5">
+                        <label class="font-bold text-slate-300">عدد العملاء المتواجدين بالطابور (1 - 10)</label>
+                        <span id="max-cust-disp" class="text-emerald-400 font-black">2 عملاء</span>
+                    </div>
+                    <input type="range" id="setting-max-customers" min="1" max="10" value="2" oninput="updateSettings()" class="w-full accent-emerald-500">
+                </div>
+
+                <!-- Customer Wait Time Slider -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="flex justify-between mb-1.5">
+                        <label class="font-bold text-slate-300">وقت انتظار العميل (20 - 240 ثانية)</label>
+                        <span id="wait-time-disp" class="text-emerald-400 font-black">120 ثانية</span>
+                    </div>
+                    <input type="range" id="setting-wait-time" min="20" max="240" value="120" step="5" oninput="updateSettings()" class="w-full accent-emerald-500">
+                </div>
+
+                <!-- Level Selector Section -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-black text-amber-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check"></i> المراحل المتاحة والمجتازة (1 - 50)
+                    </h4>
+                    <p class="text-[11px] text-slate-400 mb-3">يمكنك العودة وإعادة لعب أي مرحلة قمت بفتحها مسبقاً:</p>
+                    
+                    <div id="unlocked-levels-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        <!-- Dynamic Level Buttons (Up to 50) -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeSettingsModal()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow text-xs">
+                    حفظ وإغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PIN -->
+    <div id="pin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-[70] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-emerald-500/80 rounded-2xl w-full max-w-xs p-5 shadow-2xl text-center">
+            <div class="w-14 h-14 bg-emerald-950 text-emerald-400 border-2 border-emerald-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3"><i class="fa-solid fa-lock"></i></div>
+            <h3 id="pin-title" class="text-lg font-black text-emerald-400 mb-1"></h3>
+            <p id="pin-text" class="text-slate-300 text-xs leading-relaxed mb-3"></p>
+            <input id="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')submitPinModal()" style="user-select:text;-webkit-user-select:text" class="w-full text-center tracking-[0.6em] text-xl px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:border-emerald-500 mb-2">
+            <input id="pin-input2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="أعد كتابة الباسورد" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')submitPinModal()" style="user-select:text;-webkit-user-select:text" class="hidden w-full text-center text-sm px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:border-emerald-500 mb-2">
+            <p id="pin-error" class="text-xs text-rose-400 font-bold min-h-[1rem] mb-2"></p>
+            <div class="flex gap-2">
+                <button onclick="closePinModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs border border-slate-700">إلغاء</button>
+                <button onclick="submitPinModal()" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: OUTRO / EXIT SCREEN -->
+    <div id="exit-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-emerald-500/80 rounded-2xl w-full max-w-md p-6 shadow-2xl text-center select-none">
+            <div class="w-20 h-20 bg-emerald-950 text-emerald-400 border-2 border-emerald-500 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-xl pharmacy-cross">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            
+            <h2 class="text-xl sm:text-2xl font-black text-emerald-400 mb-3 leading-snug">
+                <span id="exit-pharmacy-name">صيدليتك</span><br>تتمنى لكم الشفاء العاجل!
+            </h2>
+            
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+                تم حفظ تقدمك ومستواك الحالي بنجاح. يسعدنا زيارتك للصيدلية في أي وقت!
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="closeExitModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition border border-slate-700">
+                    متابعة العمل بالصيدلية
+                </button>
+                <button onclick="confirmExitGame()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition shadow">
+                    العودة للشاشة الرئيسية
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LEVEL COMPLETE -->
+    <div id="level-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl w-full max-w-md p-5 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-amber-500/20 text-amber-400 border-2 border-amber-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 class="text-xl font-black text-emerald-400 mb-2">الله ينور يا دكتور! عدّيت المرحلة بنجاح!</h2>
+            <p class="text-slate-300 text-xs mb-4" id="level-modal-msg">
+                حققت Target المرحلة بنجاح وصيت الصيدلية وصل لكل مكان!
+            </p>
+
+            <div class="grid grid-cols-3 gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800 mb-5 text-center text-xs">
+                <div>
+                    <span class="text-slate-400 block mb-1">الإيراد المحقق</span>
+                    <span id="stat-money" class="text-emerald-400 font-black text-sm">0 ج.م</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block mb-1">العملاء السعداء</span>
+                    <span id="stat-served" class="text-cyan-400 font-black text-sm">0</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block mb-1">المغادرين</span>
+                    <span id="stat-left" class="text-rose-400 font-black text-sm">0</span>
+                </div>
+            </div>
+
+            <button onclick="nextLevel()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm rounded-xl transition shadow-lg">
+                الانتقال للمرحلة التالية <i class="fa-solid fa-arrow-left mr-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: PHARMACIST GUIDE -->
+    <div id="guide-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col p-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+                <h3 class="text-sm font-black text-emerald-400 flex items-center gap-2">
+                    <i class="fa-solid fa-book-medical"></i> دليل الأدوية الطبية
+                </h3>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-2.5 pr-1 text-xs text-slate-300" id="guide-content">
+                <!-- Dynamically Injected -->
+            </div>
+            <div class="pt-2 border-t border-slate-800 flex justify-end">
+                <button onclick="closeGuideModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-lg">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="bye-modal" class="fixed inset-0 bg-slate-950 hidden z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div class="text-6xl mb-4">👋</div>
+        <h2 class="text-2xl sm:text-3xl font-black text-emerald-400 mb-2">مع السلامة يا دكتور!</h2>
+        <p class="text-slate-400 text-sm mb-6">تقدمك اتحفظ. تقدر تقفل التبويب (الصفحة) دلوقتي.</p>
+        <button onclick="document.getElementById('bye-modal').classList.add('hidden')" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl border border-slate-700">
+            <i class="fa-solid fa-rotate-left ml-1"></i> رجوع للعبة
+        </button>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-4 left-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- GAME LOGIC SCRIPT -->
+    <script>
+        /* ==========================================================================
+           COMPREHENSIVE EGYPTIAN PHARMACY DATABASE (300+ UNIQUE POPULAR MEDICINES)
+           ========================================================================== */
+        const MEDICINES = [
+            // --- PAIN & ANALGESICS (مسكنات وعظام) ---
+            { id: 'm1', name: 'بندول أزرق 500 (Panadol)', category: 'PAIN', price: 92, tags: ['صداع', 'سخونية', 'ألم', 'مسكن', 'بندول', 'حرارة'], icon: '💊', desc: 'مسكن آمن للصداع والخفيف والحرارة' },
+            { id: 'm2', name: 'بندول اكسترا (Panadol Extra)', category: 'PAIN', price: 58, tags: ['صداع شديد', 'كافيين', 'مسكن', 'بندول'], icon: '💊', desc: 'مسكن مع كافيين للصداع الشديد وآلام الجسم' },
+            { id: 'm3', name: 'أوفلام 50 (Oflam)', category: 'PAIN', price: 48, tags: ['مسكن قوي', 'عظام', 'مفاصل', 'أسنان', 'أوفلام'], icon: '💊', desc: 'مسكن سريع ومضاد لالتهابات المفاصل والأسنان' },
+            { id: 'm4', name: 'كتافاست فوار 50 (Catafast)', category: 'PAIN', price: 72, tags: ['صداع', 'فوار', 'سريع', 'كتافاست', 'أسنان'], icon: '🥤', desc: 'فوار فوري لتسكين آلام الأسنان والصداع الشديد' },
+            { id: 'm5', name: 'بروفين 400 (Brufen)', category: 'PAIN', price: 78, tags: ['حرارة', 'مسكن', 'التهاب', 'بروفين', 'إيبوبروفين'], icon: '💊', desc: 'خافض حرارة ومسكن لآلام العظام والأسنان' },
+            { id: 'm6', name: 'بروفين 600 (Brufen 600)', category: 'PAIN', price: 99, tags: ['مسكن عظام', 'بروفين', 'ألم شديد'], icon: '💊', desc: 'مسكن قوي للآلام ومضاد لالتهاب المفاصل' },
+            { id: 'm7', name: 'سيتال 500 (Cetal)', category: 'PAIN', price: 24, tags: ['حرارة', 'مسكن', 'باراسيتامول', 'سيتال'], icon: '💊', desc: 'مسكن خفيف وخافض حرارة آمن' },
+            { id: 'm8', name: 'بارامول (Paramol)', category: 'PAIN', price: 38, tags: ['صداع', 'مسكن', 'بارامول', 'حرارة'], icon: '💊', desc: 'مسكن وآمن لالتهابات الصداع الخفيفة' },
+            { id: 'm9', name: 'أبيمول (Abimol)', category: 'PAIN', price: 24, tags: ['صداع', 'سخونية', 'أبيمول'], icon: '💊', desc: 'خافض حرارة ومسكن آمن للجميع' },
+            { id: 'm10', name: 'أدول 500 (Adol)', category: 'PAIN', price: 32, tags: ['أدول', 'صداع', 'سخونية', 'مسكن'], icon: '💊', desc: 'باراسيتامول مسكن للحرارة والألم' },
+            { id: 'm11', name: 'كتافلام 50 (Cataflam)', category: 'PAIN', price: 86, tags: ['كتفلام', 'أسنان', 'مسكن', 'عظام'], icon: '💊', desc: 'أقراص ديكلوفينك سريعة التسكين لالتهابات المفاصل' },
+            { id: 'm12', name: 'فولتارين 50 (Voltaren)', category: 'PAIN', price: 68, tags: ['فولتارين', 'عظام', 'مسكن', 'روماتيزم'], icon: '💊', desc: 'مسكن ومضاد للروماتيزم والتهاب العظام' },
+            { id: 'm13', name: 'فولتارين حقن 75 (Voltaren Amp)', category: 'PAIN', price: 102, tags: ['حقنة', 'فولتارين', 'مسكن شديد', 'مغص كلي'], icon: '💉', desc: 'حقن مسكنة فورية لآلام العظام والمغص الكلوي' },
+            { id: 'm14', name: 'كتوفان 50 (Ketofan)', category: 'PAIN', price: 45, tags: ['كيتوفان', 'كبتوبروفين', 'مسكن', 'أسنان'], icon: '💊', desc: 'مسكن سريع ومضاد للتورم والآلام' },
+            { id: 'm15', name: 'كتولاك حقن (Ketolac)', category: 'PAIN', price: 60, tags: ['كتولاك', 'حقنة مسكنة', 'ألم شديد', 'عمليات'], icon: '💉', desc: 'أمبول مسكن قوي جداً للآلام الحادة' },
+            { id: 'm16', name: 'فيلدين كبسول (Feldene)', category: 'PAIN', price: 43, tags: ['فيلدين', 'عظام', 'مفاصل', 'روماتيزم'], icon: '💊', desc: 'مسكن ممتد المفعول لالتهابات العظام والمفاصل' },
+            { id: 'm17', name: 'ديكلوفين فوار (Diclofen)', category: 'PAIN', price: 34, tags: ['ديكلوفين', 'فوار', 'مغص', 'ألم'], icon: '🥤', desc: 'فوار مسكن سريع ومريح للتقلصات' },
+            { id: 'm18', name: 'سيتَفين (Cetafen)', category: 'PAIN', price: 69, tags: ['سيتفين', 'مسكن', 'برد', 'صداع'], icon: '💊', desc: 'تركيبة مضاعفة لتسكين الآلام وأعراض الإجهاد' },
+            { id: 'm19', name: 'موبيتيل كبسول (Mobitil)', category: 'PAIN', price: 36, tags: ['موبيتيل', 'مفاصل', 'عظام', 'عمود فقري'], icon: '💊', desc: 'مضاد لالتهابات الروماتيزم والخشونة' },
+            { id: 'm20', name: 'سيليبريكس 200 (Celebrex)', category: 'PAIN', price: 198, tags: ['سيليبريكس', 'خشونة', 'معدة آمن', 'مفاصل'], icon: '💊', desc: 'مسكن قوي ومضاد لالتهاب المفاصل وآمن على المعدة' },
+            { id: 'm21', name: 'أركوكسيا 90 (Arcoxia)', category: 'PAIN', price: 239, tags: ['أركوكسيا', 'فقرات', 'عظام', 'مسكن قوي'], icon: '💊', desc: 'علاج ممتد لالتهابات الخشونة والفقرات' },
+            { id: 'm22', name: 'زيفو 8ملجم (Xefo)', category: 'PAIN', price: 89, tags: ['زيفو', 'مسكن عظام', 'عمود فقري'], icon: '💊', desc: 'مسكن فعال لآلام الظهر والفقرات' },
+            { id: 'm23', name: 'ألفينتيرن (Alphintern)', category: 'PAIN', price: 87, tags: ['الفينتيرن', 'تورم', 'التورم', 'كدمات', 'التهاب'], icon: '💊', desc: 'مضاد للتورم والتجمعات الدموية والالتهابات' },
+            { id: 'm24', name: 'أميجران (Amigraine)', category: 'PAIN', price: 93, tags: ['صداع نصفي', 'اميجران', 'شقيقة', 'رأس'], icon: '💊', desc: 'علاج متخصص ونوعي لنوبات الصداع النصفي' },
+            { id: 'm25', name: 'إيمجران (Imigran)', category: 'PAIN', price: 93, tags: ['إيمجران', 'صداع نصفي حاد', 'شقيقة'], icon: '💊', desc: 'أقراص سريعة المفعول لإيقاف نوبة الشقيقة' },
+            { id: 'm27', name: 'ديمرا (Dimra)', category: 'PAIN', price: 70, tags: ['ديمرا', 'باسط عضلات', 'شد عالي', 'ظهر'], icon: '💊', desc: 'مسكن وباسط للعضلات لعلاج الشد العضلي' },
+            { id: 'm28', name: 'ميوفلكس (Myoflex)', category: 'PAIN', price: 25, tags: ['ميوفلكس', 'عضلات', 'شد', 'مسكن'], icon: '💊', desc: 'باسط للعضلات لآلام الظهر والرقبة' },
+            { id: 'm29', name: 'ريلاكسون (Relaxon)', category: 'PAIN', price: 69, tags: ['ريلاكسون', 'شد عضلي', 'مساج', 'عضلات'], icon: '💊', desc: 'كبسولات باسطة للعضلات ومسكنة للتقلص العضلي' },
+
+            // --- COLD, FLU & RESPIRATORY (برد، زكام وسعال) ---
+            { id: 'm31', name: 'كونجستال أقراص (Congestal)', category: 'COLD', price: 50, tags: ['برد', 'رشح', 'عطس', 'احتقان', 'كونجستال'], icon: '🤧', desc: 'علاج شامل لأعراض البرد والرشح والحرارة' },
+            { id: 'm32', name: 'كومتريكس (Comtrex)', category: 'COLD', price: 62, tags: ['كومتريكس', 'جيوب أنفية', 'برد', 'رشح'], icon: '💊', desc: 'علاج قوي لالتهاب الجيوب الأنفية والبرد' },
+            { id: 'm33', name: 'فلورست (Flurest)', category: 'COLD', price: 32, tags: ['فلورست', 'برد', 'زكام', 'عطس'], icon: '💊', desc: 'أقراص مسكنة ومزيلة لاحتقان البرد' },
+            { id: 'm34', name: '123 أقراص برد (One Two Three)', category: 'COLD', price: 40, tags: ['123', 'برد', 'زكام', 'رشح'], icon: '💊', desc: 'لعلاج الزكام واحتقان الأنف المزعج' },
+            { id: 'm35', name: 'تيلفاست 120 (Telfast)', category: 'COLD', price: 116, tags: ['تيلفاست', 'حساسية', 'رشح', 'عطس'], icon: '💊', desc: 'مضاد حساسية لا يسبب النعاس' },
+            { id: 'm36', name: 'تيلفاست 180 (Telfast 180)', category: 'COLD', price: 160, tags: ['تيلفاست 180', 'حساسية جلد', 'ارتيكاريا'], icon: '💊', desc: 'مضاد حساسية قوي وفعال طوال اليوم' },
+            { id: 'm37', name: 'كلاريتين (Claritin)', category: 'COLD', price: 110, tags: ['كلاريتين', 'لوراتادين', 'حساسية', 'أنف'], icon: '💊', desc: 'علاج حساسية الأنف والجلد' },
+            { id: 'm38', name: 'زيرتك (Zyrtec)', category: 'COLD', price: 100, tags: ['زيرتك', 'سيتريزين', 'حساسية', 'عطس'], icon: '💊', desc: 'أقراص مضادة للحساسية والرشح الموسمي' },
+            { id: 'm39', name: 'إيريوس (Aerius)', category: 'COLD', price: 118, tags: ['إيريوس', 'حساسية جيوب', 'رشح'], icon: '💊', desc: 'مضاد حساسية متطور سريع وبدون نعاس' },
+            { id: 'm41', name: 'أوبلكس شراب (Oplex)', category: 'COLD', price: 31, tags: ['كحة', 'سعال', 'بلغم', 'شراب', 'أوبلكس'], icon: '🧪', desc: 'طارد ومذيب للبلغم ومهدئ للكحة' },
+            { id: 'm42', name: 'برونشيكام شراب (Bronchicum)', category: 'COLD', price: 78, tags: ['برونشيكام', 'كحة', 'أعشاب', 'زعتر'], icon: '🧪', desc: 'شراب أعشاب طبيعي مهدئ للشعب الهوائية' },
+            { id: 'm43', name: 'موكوسول كبسول (Mucosol)', category: 'COLD', price: 26, tags: ['موكوسول', 'بلغم', 'مذيب', 'صدر'], icon: '💊', desc: 'مذيب للبلغم وطارد للمفرزات التنفسية' },
+            { id: 'm44', name: 'أمبروكسول شراب (Ambroxol)', category: 'COLD', price: 8, tags: ['امبروكسول', 'مذيب بلغم', 'كحة'], icon: '🧪', desc: 'شراب موسع للشعب ومذيب المخاط' },
+            { id: 'm45', name: 'بيسولفون (Bisolvon)', category: 'COLD', price: 25, tags: ['بيسولفون', 'بلغم', 'كحة', 'صدر'], icon: '🧪', desc: 'علاج مذيب للبلغم وتحسين التنفس' },
+            { id: 'm46', name: 'أستيل سستايين فوار (Acetylcysteine)', category: 'COLD', price: 55, tags: ['استيل', 'فوار بلغم', 'مذيب شديد'], icon: '🥤', desc: 'فوار قوي جداً لتذويب البلغم الثقيل' },
+            { id: 'm47', name: 'سيلجون نقط/أقراص (Selgon)', category: 'COLD', price: 30, tags: ['سيلجون', 'كحة ناشفة', 'مهدئ سعال'], icon: '💊', desc: 'مهدئ قوي للسعال الجاف والكحة الناشفة' },
+            { id: 'm48', name: 'بروسبان شراب (Prospan)', category: 'COLD', price: 75, tags: ['بروسبان', 'أعلاق طبلة', 'كحة', 'أعشاب'], icon: '🧪', desc: 'شراب عشبي بلاب لإذابة البلغم وتهدئة الصدر' },
+            { id: 'm49', name: 'إيفايربرونت (Ivypront)', category: 'COLD', price: 57, tags: ['ايفايربرونت', 'اوراق عشاب', 'كحة'], icon: '🧪', desc: 'مستخلص أوراق اللبلاب الفعال للكحة' },
+            { id: 'm50', name: 'ريكتوبليكسيل لبوس (Rectoplexil)', category: 'COLD', price: 32, tags: ['لبوس كحة', 'أطفال', 'ريكتوبليكسيل'], icon: '👶', desc: 'لبوس مهدئ للسعال ومذيب للبلغم للأطفال' },
+            { id: 'm53', name: 'كلارينيز (Clarinase)', category: 'COLD', price: 118, tags: ['كلارينيز', 'انسداد أنف', 'جيوب أنفية'], icon: '💊', desc: 'أقراص طويلة المفعول لانسداد الأنف الشديد' },
+            { id: 'm54', name: 'أوتريفين بخاخ للكبار (Otrivin Adult)', category: 'COLD', price: 24, tags: ['اوتريفين', 'بخاخة أنف', 'انسداد'], icon: '👃', desc: 'بخاخ نقط لإزالة انسداد الأنف الفوري' },
+            { id: 'm56', name: 'أوتريفين أطفال (Otrivin Child)', category: 'COLD', price: 24, tags: ['اوتريفين أطفال', 'نقط أنف', 'زكام'], icon: '👶', desc: 'نقط أنف مخففة وآمنة للأطفال' },
+            { id: 'm57', name: 'فليكسوناز بخاخ (Flixonase)', category: 'COLD', price: 133, tags: ['فليكسوناز', 'كورتيزون أنف', 'حساسية زكام'], icon: '👃', desc: 'بخاخ كورتيزون موضعي لحساسية الجيوب الأنفية' },
+            { id: 'm58', name: 'أفاميس بخاخ (Avamys)', category: 'COLD', price: 160, tags: ['افاميس', 'بخاخ أنف', 'جيوب أنفية'], icon: '👃', desc: 'بخاخ عصري ممتاز لحساسية الأنف المزمنة' },
+            { id: 'm59', name: 'نازونكس (Nasonex)', category: 'COLD', price: 157, tags: ['نازونكس', 'حساسية أنف', 'لحمية'], icon: '👃', desc: 'بخاخ أنف مضاد لالتهابات الجيوب واللحمية' },
+            { id: 'm60', name: 'فنتولين بخاخ (Ventolin Inhaler)', category: 'COLD', price: 86, tags: ['فنتولين', 'بخاخ ضيق تنفس', 'أزمات'], icon: '🫁', desc: 'موسع شعب هوائية فوري لأزمات الربو والتنفس' },
+            { id: 'm61', name: 'فنتولين شراب (Ventolin Syrup)', category: 'COLD', price: 24, tags: ['فنتولين شراب', 'توسيع شعب', 'كحة'], icon: '🧪', desc: 'شراب موسع للشعب الهوائية وتسهيل التنفس' },
+            { id: 'm62', name: 'فاركولين محلول (Farcolin)', category: 'COLD', price: 37, tags: ['فاركولين', 'جلسات نيبولايزر', 'توسيع'], icon: '💧', desc: 'محلول جلسات استنشاق لتوسيع الشعب' },
+            { id: 'm63', name: 'سيريتيد بخاخ (Seretide 250)', category: 'COLD', price: 335, tags: ['سيريتيد', 'بخاخ ربو', 'صدرية'], icon: '🫁', desc: 'بخاخ وقائي وعلاجي لحالات الربو المزمن' },
+            { id: 'm64', name: 'سيمبيكورت (Symbicort 160)', category: 'COLD', price: 432, tags: ['سيمبيكورت', 'بخاخ أزمة', 'ربو'], icon: '🫁', desc: 'بخاخ توربوهايلر موسع ومضاد لالتهاب الصدر' },
+            { id: 'm65', name: 'سنجولير 10 (Singulair)', category: 'COLD', price: 192, tags: ['سنجولير', 'مونتيلوكاست', 'حساسية صدر'], icon: '💊', desc: 'أقراص وقائية لمنع أزمات الربو والحساسية' },
+
+            // --- STOMACH & DIGESTION (معدة، حموضة ومغص) ---
+            { id: 'm66', name: 'بسكوبان أقراص (Buscopan)', category: 'STOMACH', price: 56, tags: ['مغص', 'تقلصات', 'بطن', 'بسكوبان'], icon: '💊', desc: 'علاج تقلصات المعدة والمغص المعوي' },
+            { id: 'm68', name: 'جافيسكون فوار (Gaviscon)', category: 'STOMACH', price: 288, tags: ['حرقان', 'حموضة', 'ارتجاع', 'جافيسكون'], icon: '🥤', desc: 'علاج فوري لحرقان المريء والحموضة' },
+            { id: 'm69', name: 'مالوكس معلق (Maalox)', category: 'STOMACH', price: 76, tags: ['مالوكس', 'شراب حموضة', 'معدة'], icon: '🧪', desc: 'شراب مضاد للحموضة وقرحة المعدة' },
+            { id: 'm70', name: 'انتينال كبسول (Antinal)', category: 'STOMACH', price: 52, tags: ['إسهال', 'مطهر معوي', 'معدة', 'انتينال'], icon: '💊', desc: 'مطهر معوي واسع المجال لعلاج الإسهال' },
+            { id: 'm71', name: 'فلاجيل 500 (Flagyl)', category: 'STOMACH', price: 34, tags: ['فلاجيل', 'مطهر معوي', 'طفيليات', 'إسهال'], icon: '💊', desc: 'مطهر معوي ومضاد للطفيليات والبكتيريا' },
+            { id: 'm72', name: 'أمريزول 500 (Amrizole)', category: 'STOMACH', price: 25, tags: ['امريزول', 'مطهر معوي', 'مترونيدازول'], icon: '💊', desc: 'مطهر معوي لعلاج التهابات الجهاز الهضمي' },
+            { id: 'm73', name: 'نيكسيوم 40 (Nexium 40)', category: 'STOMACH', price: 488, tags: ['نيكسيوم', 'حموضة شديدة', 'قرحة', 'ارتجاع'], icon: '💊', desc: 'علاج قوي وفعال لقرحة المعدة والارتجاع' },
+            { id: 'm74', name: 'كونترولوك 40 (Controloc)', category: 'STOMACH', price: 188, tags: ['كونترولوك', 'حموضة', 'معدة', 'جدار'], icon: '💊', desc: 'حماية جدار المعدة وعلاج الحموضة المزمنة' },
+            { id: 'm75', name: 'بانتولوك 40 (Pantoloc)', category: 'STOMACH', price: 102, tags: ['بانتولوك', 'حموضة', 'ارتجاع مريء'], icon: '💊', desc: 'مثبط مضخة البروتون لتقليل حمض المعدة' },
+            { id: 'm77', name: 'دوسباتالين ريتارد (Duspatalin)', category: 'STOMACH', price: 138, tags: ['قولون عصبي', 'دوسباتالين', 'انتفاخ', 'مغص'], icon: '💊', desc: 'علاج ألام وتقلصات القولون العصبي' },
+            { id: 'm78', name: 'كولونا (Colona)', category: 'STOMACH', price: 63, tags: ['كولونا', 'قولون عصبي', 'توتر', 'مغص'], icon: '💊', desc: 'لعلاج تقلصات القولون الناتجة عن التوتر' },
+            { id: 'm79', name: 'سباسموديجستين (Spasmo-Digestivin)', category: 'STOMACH', price: 78, tags: ['هضم', 'انزيمات', 'مغص', 'انتفاخ'], icon: '💊', desc: 'فاتح شهية ومهدئ للمغص ومساعد للهضم' },
+            { id: 'm80', name: 'جاستريدج (Gastreg)', category: 'STOMACH', price: 84, tags: ['جاستريدج', 'حركة معدة', 'ترجيع', 'قولون'], icon: '💊', desc: 'منظم لحركة الجهاز الهضمي والقولون' },
+            { id: 'm81', name: 'موتیلیوم (Motilium)', category: 'STOMACH', price: 100, tags: ['موتيليوم', 'ترجيع', 'غثيان', 'معدة'], icon: '💊', desc: 'علاج الغثيان والترجيع وبطء الهضم' },
+            { id: 'm82', name: 'بريمبران (Primperan)', category: 'STOMACH', price: 11, tags: ['بريمبران', 'ترجيع', 'قيء', 'حقنة'], icon: '💊', desc: 'علاج سريع ومباشر للقيء والغثيان' },
+            { id: 'm83', name: 'فيسرجين أقراص (Visceralgine)', category: 'STOMACH', price: 42, tags: ['فيسرجين', 'مغص شديد', 'تقلصات'], icon: '💊', desc: 'مضاد قوي لتقلصات البطن والمسالك' },
+            { id: 'm84', name: 'فيسرجين حقن (Visceralgine Amp)', category: 'STOMACH', price: 90, tags: ['فيسرجين حقنة', 'مغص كلي', 'ألم حاد'], icon: '💉', desc: 'حقن مسكنة ومريحة للمغص الكلوي والمعوي' },
+            { id: 'm85', name: 'ليبراكس (Librax)', category: 'STOMACH', price: 48, tags: ['ليبراكس', 'قولون عصبي', 'قلق معدة'], icon: '💊', desc: 'علاج مهدئ لتقلصات القولون العصبي' },
+            { id: 'm86', name: 'لاكتيول فور (Lacteol Fort)', category: 'STOMACH', price: 200, tags: ['لاكتيول', 'بكتيريا نافعة', 'اسهال', 'قولون'], icon: '💊', desc: 'أكياس بكتيريا نافعة لإعادة توازن الأمعاء' },
+            { id: 'm87', name: 'نانازوكسيد (Nitazoxanide)', category: 'STOMACH', price: 114, tags: ['مطهر معوي قوي', 'طفيليات', 'نانازوكسيد'], icon: '💊', desc: 'مطهر معوي شديد المفعول للطفيليات' },
+            { id: 'm88', name: 'سيكنيدازول (Secnidal)', category: 'STOMACH', price: 15, tags: ['سيكنيدازول', 'دسنتاريا', 'اميبا'], icon: '💊', desc: 'جرعة واحدة لعلاج الأميبا والالتهابات' },
+            { id: 'm89', name: 'إيبيكوجل (Epicogel)', category: 'STOMACH', price: 48, tags: ['ابيكوجل', 'شراب حموضة', 'انتفاخ'], icon: '🧪', desc: 'شراب ملطف للحموضة والغازات' },
+            { id: 'm90', name: 'ديجستين (Digestin)', category: 'STOMACH', price: 42, tags: ['ديجستين', 'فتح شهية', 'هضم'], icon: '💊', desc: 'إنزيمات هاضمة وفاتح شهية للأكل' },
+
+            // --- ANTIBIOTICS (مضادات حيوية) ---
+            { id: 'm91', name: 'أوجمنتين 1جم (Augmentin)', category: 'ANTIBIOTIC', price: 210, tags: ['مضاد حيوي', 'زور', 'التهاب', 'أوجمنتين'], icon: '💊', desc: 'مضاد حيوي واسع المجال لالتهابات الحلق والجسم' },
+            { id: 'm92', name: 'هاي بيوتك 1جم (Hibiotic)', category: 'ANTIBIOTIC', price: 173, tags: ['هاي بيوتك', 'مضاد حيوي', 'لوز', 'زور'], icon: '💊', desc: 'مضاد حيوي قوي لالتهاب اللوزتين والتنفسي' },
+            { id: 'm93', name: 'كيوَرام 1جم (Curam)', category: 'ANTIBIOTIC', price: 182, tags: ['كيورام', 'مضاد حيوي', 'عدوى'], icon: '💊', desc: 'مضاد حيوي واسع القوة لعدوى البكتيريا' },
+            { id: 'm94', name: 'ميجاموكس 1جم (Megamox)', category: 'ANTIBIOTIC', price: 178, tags: ['ميجاموكس', 'مضاد حيوي', 'أسنان', 'زور'], icon: '💊', desc: 'مضاد أموكسيسيلين وحامض الكلافولانيك' },
+            { id: 'm95', name: 'زيثروماتكس / زيثرون 500 (Zithromax)', category: 'ANTIBIOTIC', price: 160, tags: ['زيثرون', 'زيثروماكس', '3 كبسولات', 'شعب'], icon: '💊', desc: 'مضاد حيوي تنفسي سريع (كبسولة يومياً 3 أيام)' },
+            { id: 'm96', name: 'سيبروباي 500 (Ciprobay)', category: 'ANTIBIOTIC', price: 69, tags: ['سيبروباي', 'سيبروفلوكساسين', 'مسالك'], icon: '💊', desc: 'مضاد حيوي لالتهابات المسالك البولية' },
+            { id: 'm97', name: 'تاريفيد 200 (Tarivid)', category: 'ANTIBIOTIC', price: 82, tags: ['تاريفيد', 'مضاد حيوي', 'مسالك', 'جلد'], icon: '💊', desc: 'مضاد حيوي بكتيري للمسالك والجهاز الهضمي' },
+            { id: 'm98', name: 'فلوموكس 1جم (Flumox)', category: 'ANTIBIOTIC', price: 92, tags: ['فلوموكس', 'كبسول مضاد', 'زور', 'جلد'], icon: '💊', desc: 'مضاد حيوي شهير لالتهاب الزور والجروح' },
+            { id: 'm99', name: 'سيفوتاكس 1جم حقن (Cefotax)', category: 'ANTIBIOTIC', price: 43, tags: ['سيفوتاكس', 'حقنة مضاد', 'سخونية شديدة'], icon: '💉', desc: 'أمبول مضاد حيوي شديد للعدوى البكتيرية' },
+            { id: 'm100', name: 'سيفترياكسون 1جم (Ceftriaxone)', category: 'ANTIBIOTIC', price: 95, tags: ['سيفترياكسون', 'حقنة مضاد', 'عدوى قوية'], icon: '💉', desc: 'حقن مضاد حيوي واسع المجال للالتهاب الرئوي' },
+            { id: 'm101', name: 'سيفالكسين 500 (Velosef)', category: 'ANTIBIOTIC', price: 118, tags: ['فيلوسيف', 'مضاد حيوي', 'جلد', 'جلدية'], icon: '💊', desc: 'مضاد حيوي لالتهابات الجلد والأنسجة' },
+            { id: 'm102', name: 'كلاسيد 500 (Klacid)', category: 'ANTIBIOTIC', price: 257, tags: ['كلاسيد', 'كلاريثرومايسين', 'تنفسي', 'جرثومة'], icon: '💊', desc: 'مضاد حيوي قوي لالتهاب الرئة وجرثومة المعدة' },
+            { id: 'm103', name: 'يونيكتام 1.5جم حقن (Unictam)', category: 'ANTIBIOTIC', price: 56, tags: ['يونيكتام', 'حقنة مضاد', 'عدوى شديدة'], icon: '💉', desc: 'حقن أمبيسلين وسولباكتام للعدوى البكتيرية' },
+            { id: 'm104', name: 'فراكتال / فيبراميسين (Vibramycin)', category: 'ANTIBIOTIC', price: 65, tags: ['فيبراميسين', 'حب شباب', 'دوسيسايكلين'], icon: '💊', desc: 'مضاد حيوي لعلاج حب الشباب والعدوى' },
+            { id: 'm105', name: 'دالاسين سي 300 (Dalacin C)', category: 'ANTIBIOTIC', price: 114, tags: ['دالاسين', 'كليندامايسين', 'أسنان', 'عظام'], icon: '💊', desc: 'مضاد حيوي مخصص لخاريج الأسنان والعظام' },
+
+            // --- VITAMINS & SUPPLEMENTS (فيتامينات ومكملات) ---
+            { id: 'm106', name: 'ميلجا أدفانسد (Milga Advanced)', category: 'VITAMINS', price: 150, tags: ['ميلجا', 'اعصاب', 'تنميل', 'فيتامين ب'], icon: '💊', desc: 'تركيبة مقوية للأعصاب وعلاج التنميل' },
+            { id: 'm107', name: 'نيوروبيون أقراص (Neurobion)', category: 'VITAMINS', price: 21, tags: ['نيوروبيون', 'فيتامين ب12', 'أعصاب'], icon: '💊', desc: 'فيتامينات ب المركبة لدعم الأعصاب والنشاط' },
+            { id: 'm108', name: 'نيوروبيون حقن (Neurobion Amp)', category: 'VITAMINS', price: 27, tags: ['حقنة اعصاب', 'نيوروبيون', 'ب12'], icon: '💉', desc: 'حقن فيتامين ب12 لعلاج الفقرات والتنميل' },
+            { id: 'm109', name: 'ليمتلس مان / وومان (Limitless)', category: 'VITAMINS', price: 265, tags: ['ليمتلس', 'مالتي فيتامين', 'نشاط', 'طاقة'], icon: '✨', desc: 'مكمل غذائي يومي شامل للمناعة والنشاط' },
+            { id: 'm110', name: 'كيروفيت كبسول (Kerovit)', category: 'VITAMINS', price: 150, tags: ['كيروفيت', 'فيتامينات', 'ارهاق', 'ذاكرة'], icon: '✨', desc: '46 عنصر غذائي وفيتامين لتجديد الحيوية' },
+            { id: 'm111', name: 'رويال فيت جي (Royal Vit G)', category: 'VITAMINS', price: 160, tags: ['رويال فيت', 'جنسنج', 'غذاء ملكات', 'نشاط'], icon: '🐝', desc: 'غذاء ملكات النحل مع الجنسنج للنشاط البدني' },
+            { id: 'm112', name: 'فيروجلوبين (Feroglobin)', category: 'VITAMINS', price: 210, tags: ['أنيميا', 'حديد', 'فيروجلوبين', 'تساقط شعر'], icon: '💊', desc: 'علاج الأنيميا ونقص الحديد بدون آلام معدة' },
+            { id: 'm113', name: 'بانثوجار كبسول (Pantogar)', category: 'VITAMINS', price: 243, tags: ['بانثوجار', 'تساقط شعر', 'أظافر', 'نمو'], icon: '💇‍♀️', desc: 'كبسولات تغذية وتطويل الشعر ومنع التساقط' },
+            { id: 'm114', name: 'بيرفكتيل (Perfectil)', category: 'VITAMINS', price: 350, tags: ['بيرفكتيل', 'بشرة', 'شعر', 'أظافر'], icon: '✨', desc: 'فيتامينات الجمال البريطانية للشعر والبشرة' },
+            { id: 'm116', name: 'سي ريتارد 500 (C-Retard)', category: 'VITAMINS', price: 35, tags: ['فيتامين سي', 'مناعة', 'برد', 'سي ريتارد'], icon: '🍊', desc: 'فيتامين سي ممتد المفعول لتعزيز المناعة' },
+            { id: 'm117', name: 'فيتاكيد سي فوار (Vitacid C)', category: 'VITAMINS', price: 54, tags: ['فيتاكيد', 'فوار سي', 'مناعة'], icon: '🥤', desc: 'فوار فيتامين سي لزيادة المقاومة ضد البرد' },
+            { id: 'm119', name: 'أوميجا 3 بلس (Omega 3 Plus)', category: 'VITAMINS', price: 135, tags: ['زيت سمك', 'اوميجا 3', 'تركيز', 'قلب'], icon: '🐟', desc: 'زيت السمك وزيت الثوم لدعم الذكاء والقلب' },
+            { id: 'm120', name: 'أوسوفورتين (Ossofortin D3)', category: 'VITAMINS', price: 130, tags: ['فيتامين د', 'عظام', 'وسوفورتين'], icon: '🦴', desc: 'فيتامين د3 لتقوية العظام والمفاصل' },
+
+            // --- TOPICAL, CREAMS & DERMA (مراهم، كريمات وجلدية) ---
+            { id: 'm121', name: 'ميبو مرهم حروق (MEBO)', category: 'TOPICAL', price: 109, tags: ['حروق', 'جروح', 'جلد', 'ميبو', 'التئام'], icon: '🩹', desc: 'مرهم لعلاج الحروق والجروح وترميم الجلد' },
+            { id: 'm122', name: 'فوسيدين كريم (Fucidin)', category: 'TOPICAL', price: 69, tags: ['فوسيدين', 'مضاد جلدي', 'دمامل', 'حبوب'], icon: '🧴', desc: 'كريم مضاد حيوي موضعي للدمامل والحبوب' },
+            { id: 'm123', name: 'فوسيكورت كريم (Fucicort)', category: 'TOPICAL', price: 60, tags: ['فوسيكورت', 'حساسية جلد', 'التهاب', 'حكة'], icon: '🧴', desc: 'مضاد حيوي مع كورتيزون لالتهابات الجلد' },
+            { id: 'm124', name: 'بيتابانتين / بانتينول (Panthenol)', category: 'TOPICAL', price: 120, tags: ['بانتينول', 'ترطيب', 'تشققات', 'جلد'], icon: '🧴', desc: 'كريم ترطيب وتجديد خلايا البشرة والجلد' },
+            { id: 'm125', name: 'بيتاادين جراحي (Betadine)', category: 'TOPICAL', price: 85, tags: ['بيتادين', 'مطهر جروح', 'تطهير'], icon: '🧪', desc: 'محلول مطهر قاتل للجراثيم والجروح' },
+            { id: 'm127', name: 'فولتارين ايمولجل (Voltaren Gel)', category: 'TOPICAL', price: 68, tags: ['فولتارين جل', 'مساج', 'عظام', 'دهان'], icon: '🧴', desc: 'جل مسكن ومخفف لالتهاب المفصل والظهر' },
+            { id: 'm128', name: 'فاستوم جل (Fastum Gel)', category: 'TOPICAL', price: 38, tags: ['فاستوم', 'مساج', 'اربطة', 'التواء'], icon: '🧴', desc: 'جل سريع الامتصاص لالتهاب الأربطة' },
+            { id: 'm129', name: 'موف مساج كريم (Moov Cream)', category: 'TOPICAL', price: 23, tags: ['موف', 'دهان حامي', 'عضلات', 'ظهر'], icon: '🧴', desc: 'كريم دافئ لتسكين ألام الظهر والرقبة' },
+            { id: 'm130', name: 'الفا كادول دهان (Algason / Alphacadol)', category: 'TOPICAL', price: 46, tags: ['الفاكادول', 'كدمات', 'ورم', 'دهان'], icon: '🧴', desc: 'كريم لإزالة الكدمات والتورم والالتواءات' },
+            { id: 'm131', name: 'داكتارين أورال جل (Daktarin Oral)', category: 'TOPICAL', price: 54, tags: ['داكتارين', 'فطريات فم', 'لسان', 'جل'], icon: '👅', desc: 'جل لعلاج فطريات اللسان والفم للأطفال والكبار' },
+            { id: 'm132', name: 'كينكومب مرهم (Kenacomb)', category: 'TOPICAL', price: 36, tags: ['كينكومب', 'تسليط', 'التهاب تسلخات', 'حكة'], icon: '🧴', desc: 'مرهم شامل للتسلخات والالتهابات الفطرية' },
+            { id: 'm133', name: 'بانديرم كريم (Panderm)', category: 'TOPICAL', price: 22, tags: ['بانديرم', 'تسلخات', 'حساسية جلد'], icon: '🧴', desc: 'كريم رباعي المفعول للالتهابات الجلدي' },
+            { id: 'm134', name: 'سودوكريم (Sudocrem)', category: 'TOPICAL', price: 350, tags: ['سودوكريم', 'حفاضات', 'تسلخات اطفال'], icon: '👶', desc: 'كريم حماية وعلاج تسلخات منطقة الحفاض' },
+            { id: 'm135', name: 'زنك اوليف (Zinc Olive)', category: 'TOPICAL', price: 95, tags: ['زنك اوليف', 'تسلخات اطفال', 'زيت زيتون'], icon: '👶', desc: 'كريم ملطف وممتد بحماض أكسيد الزنك' },
+            { id: 'm136', name: 'أكريتين 0.05% (Acretin)', category: 'TOPICAL', price: 43, tags: ['اكريتين', 'حب شباب', 'تقشير', 'بشرة'], icon: '✨', desc: 'كريم تقشير طبي لعلاج حب الشباب والتصبغ' },
+            { id: 'm137', name: 'ديفرين جل (Differin)', category: 'TOPICAL', price: 170, tags: ['ديفرين', 'ادابالين', 'حبوب', 'رؤوس سوداء'], icon: '✨', desc: 'جل لطيف لمكافحة الحبوب والرؤوس السوداء' },
+            { id: 'm138', name: 'سبوتليس / تريتوسبوت (Tritospot)', category: 'TOPICAL', price: 66, tags: ['تريتوسبوت', 'تفتيح', 'بقع', 'تقشير'], icon: '✨', desc: 'كريم تقشير لتفتيح البقع الداكنة والكلف' },
+            { id: 'm139', name: 'سكينورين كريم (Skinoren)', category: 'TOPICAL', price: 36, tags: ['سكينورين', 'حمض ازيليك', 'تفتيح', 'آثار حبوب'], icon: '✨', desc: 'كريم لتفتيح آثار الحبوب والورديات' },
+            { id: 'm140', name: 'لاميزيل كريم (Lamisil)', category: 'TOPICAL', price: 16, tags: ['لاميزيل', 'فطريات قدم', 'تنية'], icon: '🦶', desc: 'علاج فطريات القدم بين الأصابع والتنية' },
+
+            // --- CHRONIC: CARDIO & DIABETES (ضغط، قلب وسكر) ---
+            { id: 'm141', name: 'كونكور 5 (Concor 5)', category: 'CHRONIC', price: 72, tags: ['كونكور', 'ضغط', 'ضربات قلب', 'بيسوبرولول'], icon: '❤️', desc: 'تنظيم ضغط الدم وضربات القلب السريعة' },
+            { id: 'm142', name: 'كونكور 5 بلس (Concor Plus)', category: 'CHRONIC', price: 72, tags: ['كونكور بلس', 'مدر بول', 'ضغط مرتفع'], icon: '❤️', desc: 'علاج ضغط الدم المرتفع مع مدر للبول' },
+            { id: 'm143', name: 'كابوتن 25 (Capoten)', category: 'CHRONIC', price: 32, tags: ['كابوتن', 'ضغط سريع', 'تحت اللسان'], icon: '💊', desc: 'تخفيض ضغط الدم الطارئ والمرتفع' },
+            { id: 'm144', name: 'إكسفورج 5/160 (Exforge)', category: 'CHRONIC', price: 218, tags: ['اكسفورج', 'ضغط مزمن', 'عالي'], icon: '💊', desc: 'علاج مدمج قوي لمرضى الضغط المرتفع' },
+            { id: 'm145', name: 'أملور 5مجم (Amlor)', category: 'CHRONIC', price: 80, tags: ['أملور', 'املوديبين', 'ضغط'], icon: '💊', desc: 'موسع للأوعية الدموية لضبط الضغط' },
+            { id: 'm146', name: 'جلوكوفاج 1000 (Glucophage XR)', category: 'CHRONIC', price: 150, tags: ['جلوكوفاج', 'سيدوفاج', 'سكر', 'تخسيس'], icon: '🩸', desc: 'علاج السكر النوع الثاني وتخفيض الوزن' },
+            { id: 'm147', name: 'أماريل 2مجم (Amaryl)', category: 'CHRONIC', price: 78, tags: ['اماريل', 'سكر نوع تاني', 'انسولين'], icon: '🩸', desc: 'تحفيز البنكرياس لإفراز الأنسولين' },
+            { id: 'm148', name: 'جانوفيا 100 (Januvia)', category: 'CHRONIC', price: 510, tags: ['جانوفيا', 'سكر', 'منظم سكر'], icon: '🩸', desc: 'علاج متطور للسكر بدون هبوط مفاجئ' },
+            { id: 'm149', name: 'جانوميت 50/1000 (Janumet)', category: 'CHRONIC', price: 674, tags: ['جانوميت', 'مدمج سكر', 'منظم'], icon: '🩸', desc: 'تركيبة مدمجة لضبط مستويات السكر الدموية' },
+            { id: 'm150', name: 'فورسيجا 10مجم (Forxiga)', category: 'CHRONIC', price: 602, tags: ['فورسيجا', 'ينزل سكر بول', 'كلى'], icon: '🩸', desc: 'علاج السكر وتنزيل الجلوكوز الزائد بالبول' },
+            { id: 'm151', name: 'إكسترا / جارد يانس 25 (Jardiance)', category: 'CHRONIC', price: 626, tags: ['جارد يانس', 'سكر', 'حماية قلب'], icon: '🩸', desc: 'حماية القلب والكلى لمرضى السكري' },
+            { id: 'm152', name: 'أتور 20 (Ator)', category: 'CHRONIC', price: 79, tags: ['اتور', 'كوليسترول', 'دهون ثنائية'], icon: '💊', desc: 'تخفيض الكوليسترول الضار والدهون الثلاثية' },
+            { id: 'm153', name: 'ليبيتور 20 (Lipitor)', category: 'CHRONIC', price: 348, tags: ['ليبيتور', 'كوليسترول', 'جلطات'], icon: '💊', desc: 'علاج عالمي لتخفيض الدهون وحماية الشرايين' },
+            { id: 'm154', name: 'كريستور 10 (Crestor)', category: 'CHRONIC', price: 368, tags: ['كريستور', 'روزوفاستاتين', 'دهون'], icon: '💊', desc: 'تنظيف الشرايين وتخفيض الكوليسترول الشديد' },
+            { id: 'm155', name: 'إيزيترول 10 (Ezetrol)', category: 'CHRONIC', price: 160, tags: ['ايزيترول', 'امتصاص دهون'], icon: '💊', desc: 'منع امتصاص الكوليسترول من الوجبات' },
+
+            // --- EYE & EAR DROPS (قطرات العين والأذن) ---
+            { id: 'm156', name: 'قطرة توبرادكس (Tobradex Eye)', category: 'EYE_EAR', price: 76, tags: ['توبرادكس', 'قطرة عين', 'مضاد التهاب'], icon: '👁️', desc: 'قطرة مضاد حيوي وكورتيزون لالتهابات العين' },
+            { id: 'm157', name: 'قطرة توبركس (Tobrex Eye)', category: 'EYE_EAR', price: 33, tags: ['توبركس', 'مضاد عين', 'رمش'], icon: '👁️', desc: 'مضاد حيوي للعين آمن للأطفال والكبار' },
+            { id: 'm158', name: 'قطرة فيجاموكس (Vigamox)', category: 'EYE_EAR', price: 128, tags: ['فيجاموكس', 'عدوى عين', 'احمرار'], icon: '👁️', desc: 'مضاد حيوي حديث وشديد للقرنية والعين' },
+            { id: 'm159', name: 'قطرة سيلوكسان (Ciloxan)', category: 'EYE_EAR', price: 40, tags: ['سيلوكسان', 'قطرة اذن وعين'], icon: '👁️', desc: 'قطرة مضادة للبكتيريا للعين والأذن' },
+            { id: 'm160', name: 'قطرة بريف Fresh / ترطيب (Polyfresh)', category: 'EYE_EAR', price: 75, tags: ['بولي فريش', 'جفاف عين', 'ترطيب', 'كمبيوتر'], icon: '👁️', desc: 'قطرة بديلة للدموع لعلاج جفاف الشاشات' },
+            { id: 'm161', name: 'قطرة سيستان ألترا (Systane Ultra)', category: 'EYE_EAR', price: 360, tags: ['سيستان', 'جفاف شديد', 'ترطيب'], icon: '👁️', desc: 'ترطيب طويل الأمد للعين المجهدة' },
+            { id: 'm162', name: 'قطرة هايلو كومود (Hylo-Comod)', category: 'EYE_EAR', price: 230, tags: ['هايلو', 'جفاف عين خالي حافظة'], icon: '👁️', desc: 'قطرة ترطيب خالية من المواد الحافظة' },
+            { id: 'm163', name: 'قطرة أوتوكالم أذن (Otocalm Ear)', category: 'EYE_EAR', price: 18, tags: ['مسكن اذن', 'وتوكالم', 'الم اذن'], icon: '👂', desc: 'قطرة مسكنة ومخدرة لآلام الأذن المفاجئة' },
+            { id: 'm164', name: 'قطرة ريموواكس للأذن (Remowax)', category: 'EYE_EAR', price: 24, tags: ['ريموواكس', 'شمع اذن', 'إذابة شمع'], icon: '👂', desc: 'قطرة لإذابة وتطريات شمع الأذن المتراكم' },
+            { id: 'm165', name: 'قطرة بوليديكسا أذن (Polydexa)', category: 'EYE_EAR', price: 38, tags: ['بوليديكسا', 'التهاب اذن', 'مضاد'], icon: '👂', desc: 'قطرة علاج التهابات قناة الأذن الخارجية' },
+
+            // --- MOUTH, THROAT & DENTAL (فم، أسنان وحلق) ---
+            { id: 'm166', name: 'ستربسلز أقراص حلب (Strepsils)', category: 'MOUTH', price: 230, tags: ['ستربسلز', 'اقراص حلاب', 'احتقان زور'], icon: '🍬', desc: 'أقراص استحلاب لتهدئة وتطهير آلام الحلق' },
+            { id: 'm167', name: 'لارسبرو أقراص استحلاب (Larypro)', category: 'MOUTH', price: 44, tags: ['لاريبرو', 'استحلاب', 'زور', 'لوز'], icon: '🍬', desc: 'مظهر ومسكن لالتهابات الفم واللوز' },
+            { id: 'm168', name: 'بي بي سي بخاخ (BBC Spray)', category: 'MOUTH', price: 49, tags: ['BBC', 'بخاخ زور', 'بنج فم', 'مسكن'], icon: '😮', desc: 'بخاخ مخدر ومطهر فوري لالتهاب الحلق' },
+            { id: 'm169', name: 'تانتم فيردي مضمضة (Tantum Verde)', category: 'MOUTH', price: 31, tags: ['تانتم فيردي', 'مضمضة', 'مسكن اسنان'], icon: '🧴', desc: 'مضمضة مسكنة ومضادة لالتهاب اللثة' },
+            { id: 'm170', name: 'هيكسيتول غرغرة (Hexitol)', category: 'MOUTH', price: 50, tags: ['هيكسيتول', 'مطهر فم', 'غرغرة'], icon: '🧴', desc: 'مطهر ومطرد لرائحة الفم والبكتيريا' },
+            { id: 'm171', name: 'دنتوكالم قطرة أسنان (Dentocalm)', category: 'MOUTH', price: 45, tags: ['دنتوكالم', 'زيت قرنفل', 'بنج اسنان'], icon: '🦷', desc: 'قطرة بنج موضعي بالقرنفل لدرس السوس' },
+            { id: 'm172', name: 'أورافار استحلاب (Orafar)', category: 'MOUTH', price: 25, tags: ['اورافار', 'استحلاب', 'بنج زور'], icon: '🍬', desc: 'أقراص استحلاب مهدئة ومطهرة للحلق' },
+            { id: 'm173', name: 'اورال جي مضمضة (Oral-G)', category: 'MOUTH', price: 32, tags: ['مضمضة لثة', 'نزيف لثة'], icon: '🧴', desc: 'مضمضة لعلاج نزيف اللثة والتقرحات' },
+            { id: 'm174', name: 'معجون سنسوداين (Sensodyne)', category: 'MOUTH', price: 75, tags: ['سنسوداين', 'أسنان حساسة', 'معجون'], icon: '🪥', desc: 'معجون حماية الأسنان الحساسة من البرودة' },
+            { id: 'm175', name: 'بارودونتكس (Parodontax)', category: 'MOUTH', price: 80, tags: ['بارودونتكس', 'نزيف لثة', 'معجون طب'], icon: '🪥', desc: 'معجون طبي متخصص لعلاج نزيف اللثة' },
+
+            // --- URINARY, KIDNEY & PROSTATE (مسالك، كلى وبروستاتا) ---
+            { id: 'm176', name: 'رواتينكس كبسول (Rowatinex)', category: 'URINARY', price: 93, tags: ['رواتينكس', 'حسوات', 'كلى', 'حرقان بول'], icon: '💊', desc: 'تفتيت حصوات الكلى وتطهير مجرى البول' },
+            { id: 'm177', name: 'يورينال إم / يوراليت (Uralyt-U)', category: 'URINARY', price: 366, tags: ['يوراليت', 'إذابة حصوات', 'أملاح يورات'], icon: '🥤', desc: 'مكيال بودرة لإذابة حصوات اليوريك أسيد' },
+            { id: 'm178', name: 'أبيماج فوار (Epimag)', category: 'URINARY', price: 26, tags: ['ابيماج', 'فوار املاح', 'اوكسالات'], icon: '🥤', desc: 'فوار سترات الماغنسيوم لأملاح الأوكسالات' },
+            { id: 'm179', name: 'سيستون أقراص (Cystone)', category: 'URINARY', price: 123, tags: ['سيستون', 'اعشاب كلى', 'حسوات'], icon: '💊', desc: 'أقراص أعشاب هندية لمنع تكون حصوات الكلى' },
+            { id: 'm180', name: 'رينال إس فوار (Renal S)', category: 'URINARY', price: 30, tags: ['رينال اس', 'مطهر مطهر مطهر', 'حرقان بول'], icon: '🥤', desc: 'فوار مطهر ومسكن لمجاري البول' },
+            { id: 'm181', name: 'أومنيك أوكاس (Omnic Ocas)', category: 'URINARY', price: 282, tags: ['اومنيك', 'بروستاتا', 'تقطير بول', 'تامسولوسين'], icon: '💊', desc: 'تسهيل التبول وعلاج تضخم البروستاتا' },
+            { id: 'm182', name: 'تامسولين 0.4 (Tamsulin)', category: 'URINARY', price: 124, tags: ['تامسولين', 'بروستاتا', 'تبول'], icon: '💊', desc: 'علاج حبس وتقطير البول للرجال' },
+            { id: 'm183', name: 'بروسكار 5مجم (Proscar)', category: 'URINARY', price: 258, tags: ['بروسكار', 'تضم بروستاتا', 'فيناسترايد'], icon: '💊', desc: 'انكماش حجم البروستاتا المتضخمة' },
+            { id: 'm184', name: 'أفودارت 0.5 (Avodart)', category: 'URINARY', price: 313, tags: ['افودارت', 'بروستاتا', 'دوتاسترايد'], icon: '💊', desc: 'علاج متطور لتضخم البروستاتا الحميد' },
+            { id: 'm185', name: 'بيپون بلس (Peponen Plus)', category: 'URINARY', price: 150, tags: ['زيت يقطين', 'بيپون', 'بروستاتا اعشاب'], icon: '💊', desc: 'مكمل زيت بذور القرع لصحة البروستاتا' },
+
+            // --- LIVER & GALLBLADDER (كبد ومرارة) ---
+            { id: 'm186', name: 'أورسوفالك 250 (Ursofalk)', category: 'LIVER', price: 162, tags: ['اورسوفالك', 'مرارة', 'إذابة حصوات مرارة'], icon: '💊', desc: 'إذابة حصوات المرارة وحماية خلايا الكبد' },
+            { id: 'm187', name: 'رواتكس / رواكول (Rowachol)', category: 'LIVER', price: 93, tags: ['رواكول', 'مرارة', 'مغص مراري'], icon: '💊', desc: 'تنشيط إفراز المرارة وتسكين آلامها' },
+            { id: 'm188', name: 'هيباميرز أكياس (Hepa-Merz)', category: 'LIVER', price: 45, tags: ['هيباميرز', 'تنشيط كبد', 'سموم'], icon: '🥤', desc: 'أكياس طاردة للسموم وحماية خلايا الكبد' },
+            { id: 'm189', name: 'إسينشال فوررتي (Essentiale Forte)', category: 'LIVER', price: 195, tags: ['ايسنشيال', 'كبد دهني', 'دهون كبد'], icon: '💊', desc: 'علاج الكبد الدهني وتجديد الخلايا' },
+            { id: 'm190', name: 'سيليمارين أكياس (Silymarin)', category: 'LIVER', price: 35, tags: ['سيليمارين', 'خرفيش جمجة', 'مضاد اكسدة كبد'], icon: '🥤', desc: 'خلاصة الشوك الحليبي لدعم وظائف الكبد' },
+
+            // --- WOMAN & GYNECOLOGY (نساء، حمل وتنظيم) ---
+            { id: 'm191', name: 'برونوجيست 400 (Prontogest)', category: 'GYNE', price: 372, tags: ['برونوجيست', 'تثبيت حمل', 'لبوس'], icon: '💊', desc: 'بروجسترون لتثبيت الحمل ودعم البطانة' },
+            { id: 'm192', name: 'ياسمين أقراص (Yasmin)', category: 'GYNE', price: 205, tags: ['ياسمين', 'منع حمل', 'هرمونات'], icon: '💊', desc: 'أقراص منسقة لمنع الحمل بدون زيادة وزن' },
+            { id: 'm193', name: 'دياني 35 (Diane 35)', category: 'GYNE', price: 450, tags: ['دياني', 'تكيس مبيض', 'حب شباب هرموني'], icon: '💊', desc: 'تنظيم الهرمونات وعلاج تكيس المبيض' },
+            { id: 'm194', name: 'جينرا (Gynera)', category: 'GYNE', price: 124, tags: ['جينرا', 'منع حمل'], icon: '💊', desc: 'أقراص كلاسيكية مضمونة لمنع الحمل' },
+            { id: 'm195', name: 'بريمولوت إن (Primolut N)', category: 'GYNE', price: 82, tags: ['بريمولوت', 'تنزيل دورة', 'تأخير دورة'], icon: '💊', desc: 'تنظيم وتأخير ميعاد الدورة الشهرية' },
+
+            // --- VEINS & CIRCULATION (أوردة، بواسير ودورة دموية) ---
+            { id: 'm196', name: 'دافيلون 500 (Daflon 500)', category: 'VEINS', price: 236, tags: ['دافلون', 'بواسير', 'دوالي', 'نزيف'], icon: '🩸', desc: 'تقوية الشعيرات الدموية وعلاج البواسير والدوالي' },
+            { id: 'm197', name: 'ريباريل جيل (Reparil-N Gel)', category: 'VEINS', price: 58, tags: ['ريباريل', 'دوالي دهان', 'كدمات'], icon: '🧴', desc: 'جل سريع لتخفيف دوالي الساقين والكدمات' },
+            { id: 'm198', name: 'هموروهيد مرهم (Hemorrhoide)', category: 'VEINS', price: 35, tags: ['بواسير مرهم', 'بنج موضعي'], icon: '🩹', desc: 'مرهم مخدر ومسكن لآلام البواسير' },
+            { id: 'm199', name: 'ستوجيرون 25 (Stugeron)', category: 'VEINS', price: 35, tags: ['ستوجيرون', 'دوخة', 'دوار البحر', 'طنين'], icon: '💊', desc: 'علاج الدوخة والدوار وزيادة تدفق الدم للدماغ' },
+            { id: 'm200', name: 'بيتاسيرك 16 (Betaserc)', category: 'VEINS', price: 219, tags: ['بيتاسيرك', 'طنين اذن', 'دوار مينير'], icon: '💊', desc: 'علاج دوار الأذن الداخلية والطنين' },
+
+            // --- PSYCHOLOGY & NERVES (أعصاب، نوم ومزاج) ---
+            { id: 'm201', name: 'موتيفال (Motival)', category: 'PSYCH', price: 25, tags: ['موتيفال', 'قلق', 'توتر', 'قولون عصبي'], icon: '🧠', desc: 'علاج القلق والتوتر والتحكم بالأعصاب' },
+            { id: 'm202', name: 'ديانكسيت (Deanxit)', category: 'PSYCH', price: 65, tags: ['ديانكسيت', 'تحسين مزاج', 'انشراح', 'قلق'], icon: '🧠', desc: 'أقراص تعديل المزاج وتخفيف الضغط النفسي' },
+            { id: 'm203', name: 'دوجتيل 50 (Dogmatil)', category: 'PSYCH', price: 81, tags: ['دوجتيل', 'قولون عصبي', 'قلق معدة'], icon: '🧠', desc: 'علاج أعراض القولون والاضطرابات النفسجسمية' },
+            { id: 'm204', name: 'سيبرالكس 10 (Cipralex)', category: 'PSYCH', price: 392, tags: ['سيبرالكس', 'اكتئاب', 'هلع', 'سيروتونين'], icon: '🧠', desc: 'علاج نوبات الهلع والاكتئاب والخوف' },
+            { id: 'm205', name: 'مودابكس 50 (Moodapex)', category: 'PSYCH', price: 111, tags: ['مودابكس', 'سيرترالين', 'مزاج', 'وسواس'], icon: '🧠', desc: 'تحسين المزاج وعلاج الوسواس والقلق' },
+
+            // --- ADDITIONAL POPULAR DRUGS ---
+            { id: 'm206', name: 'أمبيسيلين 500 (Ampicillin)', category: 'ANTIBIOTIC', price: 22, tags: ['امبيسيلين', 'مضاد حيوي'], icon: '💊', desc: 'كبسولات مضاد حيوي للبكتيريا' },
+            { id: 'm207', name: 'أموكسيل 500 (Amoxil)', category: 'ANTIBIOTIC', price: 29, tags: ['اموكسيل', 'اموكسيسيلين'], icon: '💊', desc: 'مضاد حيوي واسع المفعول' },
+            { id: 'm208', name: 'سيبازول 500 (Cipazole)', category: 'STOMACH', price: 27, tags: ['سيبازول', 'مطهر معوي'], icon: '💊', desc: 'علاج الطفيليات والإسهال' },
+            { id: 'm209', name: 'باراسيتامول 500 (Paracetamol)', category: 'PAIN', price: 34, tags: ['باراسيتامول', 'صداع'], icon: '💊', desc: 'مسكن آمن رخيص الثمن' },
+            { id: 'm210', name: 'بروفين 200 (Brufen 200)', category: 'PAIN', price: 48, tags: ['بروفين خفيف', 'اطفال'], icon: '💊', desc: 'مسكن ألم للأطفال والشباب' },
+            { id: 'm211', name: 'كتافلام نقط أطفال (Cataflam Drops)', category: 'PAIN', price: 18, tags: ['كتافلام اطفال', 'نقط حرارة'], icon: '💧', desc: 'مسكن خافض حرارة سريع للأطفال' },
+            { id: 'm212', name: 'سيتال شراب (Cetal Syrup)', category: 'PAIN', price: 31, tags: ['سيتال شراب', 'حرارة اطفال'], icon: '🧪', desc: 'شراب مسكن وخافض حرارة للأطفال' },
+            { id: 'm213', name: 'ديكلوفيناك صوديوم 75 (Diclofenac)', category: 'PAIN', price: 135, tags: ['ديكلوفيناك', 'حقن مسكن'], icon: '💉', desc: 'أمبولات مسكنة للعظام' },
+            { id: 'm214', name: 'بروفين فوار (Brufen Effervescent)', category: 'PAIN', price: 60, tags: ['بروفين فوار', 'سريع'], icon: '🥤', desc: 'فوار مسكن سريع الامتصاص' },
+            { id: 'm215', name: 'ريفو 75 (Rivo)', category: 'PAIN', price: 7, tags: ['ريفو', 'اسبرين', 'سيولة', 'صداع'], icon: '💊', desc: 'أقراص ريفو الخضراء التقليدية للصداع والسيولة' },
+            { id: 'm216', name: 'أسبوسيد أطفال (Aspocid)', category: 'PAIN', price: 35, tags: ['اسبوسيد', 'مضغ', 'سيولة'], icon: '🍬', desc: 'أقراص مضغ لحماية القلب والسيولة' },
+            { id: 'm217', name: 'ميكوستاتين نقط فم (Mycostatin)', category: 'MOUTH', price: 9, tags: ['ميكوستاتين', 'فطريات اطفال', 'لسان'], icon: '💧', desc: 'نقط علاج الفطريات البيضاء بفم الرضع' },
+            { id: 'm218', name: 'جل فم سنسوداين (Sensodyne Gel)', category: 'MOUTH', price: 85, tags: ['جل اسنان', 'حساسية'], icon: '🪥', desc: 'جل مهدئ لآلام اللثة والأسنان' },
+            { id: 'm219', name: 'بيتاادين دش مهبلي (Betadine Douche)', category: 'GYNE', price: 85, tags: ['دش مهبلي', 'بيتادين', 'مطهر'], icon: '🧪', desc: 'مطهر مهبلي لعلاج الفطريات والإفرازات' },
+            { id: 'm220', name: 'جينو داكتارين (Gyno-Daktarin)', category: 'GYNE', price: 59, tags: ['لبوس مهبلي', 'داكتارين', 'فطريات'], icon: '💊', desc: 'لبوس علاجي لفطريات النساء' },
+            { id: 'm221', name: 'فيرين 135 (Verine)', category: 'STOMACH', price: 45, tags: ['فيرين', 'ميبيفرين', 'قولون'], icon: '💊', desc: 'علاج تقلصات المغص المعوي والقولون' },
+            { id: 'm222', name: 'سباسمومين (Spasmomen)', category: 'STOMACH', price: 80, tags: ['سباسمومين', 'مغص', 'انتفاخ'], icon: '💊', desc: 'أقراص مهدئة لتقلصات الجهاز الهضمي' },
+            { id: 'm223', name: 'مينثولاكس (Mentholax)', category: 'STOMACH', price: 15, tags: ['ملين', 'امساك', 'اعشاب'], icon: '💊', desc: 'ملين عشبي لعلاج الإمساك' },
+            { id: 'm224', name: 'مينالاكس (Minalax)', category: 'STOMACH', price: 60, tags: ['مينالاكس', 'امساك', 'اقراص'], icon: '💊', desc: 'أقراص ملينة لطيفة للإمساك' },
+            { id: 'm225', name: 'بيكولاكس نقط (Picolax)', category: 'STOMACH', price: 24, tags: ['بيكولاكس', 'امساك شديد', 'نقط'], icon: '💧', desc: 'نقط سريعة المفعول للإمساك' },
+            { id: 'm226', name: 'سينالاكس (Sinalax)', category: 'STOMACH', price: 48, tags: ['سينالاكس', 'سنا', 'امساك'], icon: '💊', desc: 'أقراص الملين الطبيعي' },
+            { id: 'm227', name: 'دوفالاك شراب (Duphalac)', category: 'STOMACH', price: 143, tags: ['دوفالاك', 'شراب امساك', 'امان حوامل'], icon: '🧪', desc: 'شراب ملين آمن للحوامل والأطفال' },
+            { id: 'm228', name: 'أمريزول ان لبوس (Amrizole N)', category: 'GYNE', price: 30, tags: ['امريزول ان', 'لبوس مهبلي'], icon: '💊', desc: 'لبوس مضاد لالتهاب الطفيليات والبكتيريا' },
+            { id: 'm229', name: 'فلاجيل شراب (Flagyl Liquid)', category: 'STOMACH', price: 26, tags: ['فلاجيل شراب', 'اطفال مطهر'], icon: '🧪', desc: 'مطهر معوي شراب للأطفال' },
+            { id: 'm230', name: 'ديفلوكان 150 (Diflucan)', category: 'ANTIBIOTIC', price: 111, tags: ['ديفلوكان', 'فلوكونازول', 'كبسولة فطريات'], icon: '💊', desc: 'كبسولة واحدة لعلاج الفطريات الشديدة' },
+            { id: 'm231', name: 'فلوكورال 150 (Flucoral)', category: 'ANTIBIOTIC', price: 60, tags: ['فلوكورال', 'فطريات كبسول'], icon: '💊', desc: 'علاج الفطريات الجلدية والمهبلية' },
+            { id: 'm232', name: 'إتراپكس (Itrapex)', category: 'ANTIBIOTIC', price: 141, tags: ['اترابكس', 'فطريات اظافر'], icon: '💊', desc: 'علاج الفطريات المستعصية بالأظافر' },
+            { id: 'm233', name: 'تربينافين 250 (Terbinafine)', category: 'ANTIBIOTIC', price: 68, tags: ['تربينافين', 'تنية', 'فطريات شعر'], icon: '💊', desc: 'أقراص الفطريات الواسعة' },
+            { id: 'm234', name: 'ديرموفيت كريم (Dermovate)', category: 'TOPICAL', price: 44, tags: ['ديرموفيت', 'صدفية', 'كورتيزون قوي'], icon: '🧴', desc: 'كريم كورتيزون شديد للصدفية والأكزيما' },
+            { id: 'm235', name: 'بيتنوفيت سي (Betnovate C)', category: 'TOPICAL', price: 15, tags: ['بيتنوفيت', 'اكزيما', 'جلد'], icon: '🧴', desc: 'علاج الأكزيما والتهاب الجلد المعقد' },
+            { id: 'm236', name: 'إيلوكوم كريم (Elocon)', category: 'TOPICAL', price: 33, tags: ['ايلوكوم', 'موميتازون', 'حساسية بشرة'], icon: '🧴', desc: 'كريم حساسية البشرة والجلد الآمن' },
+            { id: 'm237', name: 'كينكورت (Kenacort)', category: 'TOPICAL', price: 160, tags: ['كينكورت', 'تقرحات فم'], icon: '🧴', desc: 'معجون لعلاج قرح الفم المؤلمة' },
+            { id: 'm238', name: 'سيتال أطفال لبوس (Cetal Supp)', category: 'PAIN', price: 13, tags: ['سيتال لبوس', 'سخونية اطفال'], icon: '👶', desc: 'لبوس خافض حرارة سريع للرضع' },
+            { id: 'm239', name: 'دولفين 25 لبوس (Dolphin 25)', category: 'PAIN', price: 38, tags: ['دولفين لبوس', 'سخونية شديدة اطفال'], icon: '👶', desc: 'لبوس ديكلوفيناك لتنزيل الحرارة العالية' },
+            { id: 'm240', name: 'دولفين 50 لبوس (Dolphin 50)', category: 'PAIN', price: 48, tags: ['دولفين 50', 'حرارة اطفال'], icon: '👶', desc: 'خافض حرارة قوي ومسكن مسائي' },
+            { id: 'm241', name: 'كونجستال شراب (Congestal Syrup)', category: 'COLD', price: 44, tags: ['كونجستال شراب', 'برد اطفال'], icon: '🧪', desc: 'علاج برد ورشح الأطفال' },
+            { id: 'm242', name: 'سيتال كولد (Cetal Cold)', category: 'COLD', price: 36, tags: ['سيتال كولد', 'برد', 'رشح'], icon: '💊', desc: 'أقراص مسكنة للبرد والرشح' },
+            { id: 'm243', name: 'جريب أوت (Grip Out)', category: 'COLD', price: 35, tags: ['جريب اوت', 'برد', 'انفلونزا'], icon: '💊', desc: 'كبسولات تركيبة الأنفلونزا الشديدة' },
+            { id: 'm244', name: 'فينستيل نقط (Fenistil Drops)', category: 'COLD', price: 34, tags: ['فينستيل نقط', 'حساسية اطفال', 'حكة'], icon: '💧', desc: 'نقط مهدئة للحساسية والحكة للأطفال' },
+            { id: 'm245', name: 'فينستيل جل (Fenistil Gel)', category: 'TOPICAL', price: 10, tags: ['فينستيل جل', 'قرص ناموس', 'حكة'], icon: '🧴', desc: 'جل مهدئ لقرص الحشرات والحساسية' },
+            { id: 'm246', name: 'كلامين لوين (Calamine Lotion)', category: 'TOPICAL', price: 49, tags: ['كلامين', 'جديري مائي', 'حكة شمس'], icon: '🧪', desc: 'ملطف الجديري المائي وضربات الشمس' },
+            { id: 'm247', name: 'بتاديرم كريم (Betaderm)', category: 'TOPICAL', price: 23, tags: ['بتاديرم', 'كورتيزون رخيص', 'حساسية'], icon: '🧴', desc: 'كريم رخيص لعلاج التهابات الجلد' },
+            { id: 'm248', name: 'باكتروبان مرهم (Bactroban)', category: 'TOPICAL', price: 45, tags: ['باكتروبان', 'موبيروسين', 'مضاد جروح'], icon: '🩹', desc: 'مرهم مضاد حيوي للجروح والأنف' },
+            { id: 'm249', name: 'موبيروسين كريم (Mupirocin)', category: 'TOPICAL', price: 35, tags: ['موبيروسين', 'خياطة جروح'], icon: '🩹', desc: 'مضاد حيوي لمنع التلوث بعد الجراحة' },
+            { id: 'm250', name: 'تيراميسين مرهم عين (Terramycin Eye)', category: 'EYE_EAR', price: 29, tags: ['تيراميسين', 'مرهم عين', 'دمل جفن'], icon: '👁️', desc: 'مرهم عين شهير لالتهابات الجفن والشعيرة' },
+            { id: 'm251', name: 'تيراميسين جلد (Terramycin Skin)', category: 'TOPICAL', price: 14, tags: ['تيراميسين جلد', 'جروح'], icon: '🩹', desc: 'مرهم أصفر مطهر للجروح والتسلخات' },
+            { id: 'm252', name: 'سلفاديازين / ديرمازين (Dermazin)', category: 'TOPICAL', price: 30, tags: ['ديرمازين', 'حروق سلفا'], icon: '🩹', desc: 'كريم الفضة لعلاج حروق الدرجة الثانية' },
+            { id: 'm253', name: 'فيراباميل / إيزوبتين 80 (Isoptin)', category: 'CHRONIC', price: 50, tags: ['ايزوبتين', 'ضربات قلب', 'ضغط'], icon: '💊', desc: 'تنظيم ضربات القلب المرتفعة' },
+            { id: 'm254', name: 'أسبيرين حماية 100 (Aspirin Protect)', category: 'CHRONIC', price: 78, tags: ['اسبرين 100', 'سيولة دم', 'وقاية جلطات'], icon: '💊', desc: 'أقراص مغلفة لسيولة الدم وحماية القلب' },
+            { id: 'm255', name: 'برلاكس 75 (Plavix)', category: 'CHRONIC', price: 311, tags: ['بلافيكس', 'كلوبيدوجريل', 'دعامات'], icon: '💊', desc: 'مانع للتجلط لمرضى دعامات القلب' },
+            { id: 'm256', name: 'ميكارديس 80 (Micardis)', category: 'CHRONIC', price: 434, tags: ['ميكارديس', 'ضغط دائم'], icon: '💊', desc: 'علاج ممتد المفعول لمرضى الضغط' },
+            { id: 'm257', name: 'بلوكادرس (Blopress 16)', category: 'CHRONIC', price: 230, tags: ['بلوبرس', 'ضغط'], icon: '💊', desc: 'أقراص خافضة للضغط المرتفع' },
+            { id: 'm258', name: 'ناتريلكس SR (Natrilix SR)', category: 'CHRONIC', price: 85, tags: ['ناتريلكس', 'مدر بول ضغط'], icon: '💊', desc: 'مدر بول خفيف لمنع تورم القدمين وضبط الضغط' },
+            { id: 'm259', name: 'إنداباميد 1.5 (Indapamide)', category: 'CHRONIC', price: 35, tags: ['انداباميد', 'ضغط'], icon: '💊', desc: 'مدر بول لتقليل ضغط الدم' },
+            { id: 'm260', name: 'لازكس 40 (Lasix)', category: 'CHRONIC', price: 30, tags: ['لازكس', 'مدر بول قوي', 'مياه زائدة'], icon: '💊', desc: 'علاج مياه الرئة وتورم الجسم الشديد' },
+            { id: 'm261', name: 'ألدكتون 25 (Aldactone)', category: 'CHRONIC', price: 40, tags: ['الدكتون', 'مدر حافظ بوتاسيوم'], icon: '💊', desc: 'مدر بول يحافظ على مستوى البوتاسيوم' },
+            { id: 'm262', name: 'ديجوكسين / لانوكسين (Lanoxin)', category: 'CHRONIC', price: 119, tags: ['لانوكسين', 'قوة عضلة قلب'], icon: '💊', desc: 'تقوية انقباض عضلة القلب' },
+            { id: 'm263', name: 'نيتروماك 2.5 (Nitromak)', category: 'CHRONIC', price: 96, tags: ['نيتروماك', 'ذبحة صدرية', 'وسيع شرايين'], icon: '💊', desc: 'كبسولات موسعة لشرايين القلب التاجية' },
+            { id: 'm264', name: 'إيفوكس 20 (Effox)', category: 'CHRONIC', price: 45, tags: ['ايفوكس', 'ذبحة'], icon: '💊', desc: 'الوقاية من نوبات الذبحة الصدرية' },
+            { id: 'm265', name: 'كوردارون 200 (Cordarone)', category: 'CHRONIC', price: 102, tags: ['كوردارون', 'انتظام نبض'], icon: '💊', desc: 'علاج اضطراب نبضات القلب الشديد' },
+            { id: 'm266', name: 'مينثوفين / ثيوفيلين (Kiophyllin)', category: 'COLD', price: 35, tags: ['ثيوفيلين', 'موسع شعب'], icon: '💊', desc: 'أقراص موسعة لشعب الصدر' },
+            { id: 'm267', name: 'أفيل حقن (Avil Amp)', category: 'COLD', price: 69, tags: ['افيل حقنة', 'حساسية طوارئ'], icon: '💉', desc: 'حقن طوارئ سريعة للحساسية والتهيج' },
+            { id: 'm268', name: 'ديكساميثازون حقن (Dexamethasone)', category: 'COLD', price: 65, tags: ['ديكسا', 'كورتيزون طوارئ'], icon: '💉', desc: 'حقن كورتيزون مضادة للالتهاب والتورم' },
+            { id: 'm269', name: 'فولترين قمع أطفال (Voltaren Supp)', category: 'PAIN', price: 54, tags: ['فولتارين لبوس', 'اطفال'], icon: '👶', desc: 'مسكن ومخفض حرارة قوي للأطفال' },
+            { id: 'm270', name: 'أوتال نقط أذن (Otal Ear)', category: 'EYE_EAR', price: 19, tags: ['اوتال', 'قطرة اذن'], icon: '👂', desc: 'قطرة مسكنة ومطهرة للأذن' },
+            { id: 'm271', name: 'برادكس نقط اذن (Pradex)', category: 'EYE_EAR', price: 25, tags: ['برادكس', 'اذن'], icon: '👂', desc: 'قطرة علاج التهابات صوان الأذن' },
+            { id: 'm272', name: 'أوبتيدكس قطرة (Optidex)', category: 'EYE_EAR', price: 48, tags: ['اوبتيدكس', 'عين'], icon: '👁️', desc: 'قطرة مطهرة لالتهابات العين' },
+            { id: 'm273', name: 'بتنوسام قطرة (Betnosam)', category: 'EYE_EAR', price: 30, tags: ['بتنوسام', 'قطرة اذن وعين'], icon: '👁️', desc: 'مضاد التهاب للعين والأذن' },
+            { id: 'm274', name: 'نوستام نقط أنف (Nostamine)', category: 'COLD', price: 22, tags: ['نوستامين', 'حساسية عين وانف'], icon: '💧', desc: 'نقط مزيلة لاحتقان الأنف وحكة العين' },
+            { id: 'm275', name: 'غالفوس مت (Galvus Met)', category: 'CHRONIC', price: 315, tags: ['غالفوس مت', 'سكر'], icon: '🩸', desc: 'علاج مدمج ممتاز لمرض السكري' },
+            { id: 'm276', name: 'سينجاردى (Synjardy)', category: 'CHRONIC', price: 870, tags: ['سينجاردي', 'سكر ينزل بالبول'], icon: '🩸', desc: 'تركيبة متطورة لتنظيم سكر الدم' },
+            { id: 'm277', name: 'أوزمبيك قلم (Ozempic 1mg)', category: 'CHRONIC', price: 4000, tags: ['اوزمبيك', 'تخسيس شديد', 'حقنة سكر'], icon: '💉', desc: 'حقن أسبوعية لتنظيم السكر وإنقاص الوزن' },
+            { id: 'm278', name: 'تروليسيتي (Trulicity)', category: 'CHRONIC', price: 3250, tags: ['تروليسيتي', 'حقنة سكر اسبوعية'], icon: '💉', desc: 'قلم أسبوعي لمرضى السكري' },
+            { id: 'm279', name: 'لانتوس سولوستار - علبة 5 أقلام (Lantus SoloStar)', category: 'CHRONIC', price: 1244, tags: ['لانتوس', 'انسولين عكر', '24 ساعة'], icon: '💉', desc: 'أنسولين قاعدة ممتد المفعول طوال اليوم' },
+            { id: 'm280', name: 'نوفورابيد فليكس بن - علبة 5 أقلام (NovoRapid)', category: 'CHRONIC', price: 1260, tags: ['نوفرابيد', 'انسولين وجبات', 'سريع'], icon: '💉', desc: 'أنسولين سريع جداً يقدم قبل الوجبات' },
+            { id: 'm281', name: 'ميكستارد 100 (Mixtard 100)', category: 'CHRONIC', price: 130, tags: ['ميكستارد', 'انسولين خلوط'], icon: '💉', desc: 'أنسولين مخلوط طويل وسريع المفعول' },
+            { id: 'm282', name: 'إيوتيروكس 50 (Euthyrox 50)', category: 'CHRONIC', price: 105, tags: ['ايوتيروكس', 'غدة درقية', 'خمول غدة'], icon: '💊', desc: 'تعويض خمول وهرمون الغدة الدرقية' },
+            { id: 'm283', name: 'إيوتيروكس 100 (Euthyrox 100)', category: 'CHRONIC', price: 158, tags: ['ايوتيروكس 100', 'غدة'], icon: '💊', desc: 'علاج خمول الغدة الدرقية المزمن' },
+            { id: 'm284', name: 'ثيروسيل 50 (Thyrosil)', category: 'CHRONIC', price: 72, tags: ['نشاط غدة', 'ثيروسيل'], icon: '💊', desc: 'علاج زيادة نشاط وإفراز الغدة الدرقية' },
+            { id: 'm285', name: 'زوفيراكس كريم (Zovirax)', category: 'TOPICAL', price: 27, tags: ['زوفيراكس', 'هرش شفايف', 'هربس'], icon: '🧴', desc: 'علاج حمو الشفة والهربس الجلدي' },
+            { id: 'm286', name: 'فالتريكس 500 (Valtrex)', category: 'ANTIBIOTIC', price: 789, tags: ['فالتريكس', 'حزام ناري', 'فيروسات'], icon: '💊', desc: 'أقراص علاج الحزام الناري والهربس' },
+            { id: 'm287', name: 'فيرونال / أسيكلوفير (Acyclovir)', category: 'ANTIBIOTIC', price: 280, tags: ['اسيكلوفير', 'فيروس'], icon: '💊', desc: 'مضاد للفيروسات الجلدية' },
+            { id: 'm288', name: 'هيباتو فالكان (Hepato-Forte)', category: 'LIVER', price: 90, tags: ['هيباتوفالكان', 'فيتامين كبد'], icon: '💊', desc: 'كبسولات منشطة ومجددة لخلايا الكبد' },
+            { id: 'm289', name: 'ليجالون 140 (Legalon)', category: 'LIVER', price: 75, tags: ['ليجالون', 'سيليمارين نقي'], icon: '💊', desc: 'حماية خلايا الكبد من الإجهاد والأدوية' },
+            { id: 'm290', name: 'كروميوم كبسول (Chromium)', category: 'VITAMINS', price: 60, tags: ['كروميوم', 'حرق سكر'], icon: '💊', desc: 'مكمل لزيادة استجابة الأنسولين' },
+            { id: 'm291', name: 'شيتوكال كبسول (Chitocal)', category: 'VITAMINS', price: 270, tags: ['شيتوكال', 'تخسيس دهون', 'امتصاص'], icon: '💊', desc: 'ربط دهون الوجبات ومنع امتصاصها' },
+            { id: 'm292', name: 'أورلي كبسول (Orly / Orlistat)', category: 'VITAMINS', price: 240, tags: ['اورلي', 'اورليستات', 'تخسيس'], icon: '💊', desc: 'منع هضم وامتصاص 30% من دهون الأكل' },
+            { id: 'm293', name: 'كروماكس (Chromax)', category: 'VITAMINS', price: 177, tags: ['كروماكس', 'جارسينيا', 'سد شهية'], icon: '💊', desc: 'سد الشهية وزيادة معدلات حرق الدهون' },
+            { id: 'm294', name: 'بران كبسول (Bran)', category: 'STOMACH', price: 75, tags: ['ردة', 'بران', 'شبع', 'امساك'], icon: '🌾', desc: 'ألياف الردة الطبيعية للشبع والإمساك' },
+            { id: 'm295', name: 'سيدوفاج 850 (Cidophage)', category: 'CHRONIC', price: 96, tags: ['سيدوفاج', 'تخسيس سكر'], icon: '💊', desc: 'منظم سكر شهير ورخيص الثمن' },
+            { id: 'm296', name: 'جلوكوفاج 500 (Glucophage 500)', category: 'CHRONIC', price: 60, tags: ['جلوكوفاج 500'], icon: '💊', desc: 'أقراص تنظيم الجلوكوز بالدم' },
+            { id: 'm297', name: 'سولبادين فوار (Solpadeine)', category: 'PAIN', price: 300, tags: ['سولبادين', 'كودايين', 'مسكن جبار'], icon: '🥤', desc: 'مسكن فوار قوي للآلام المستعصية' },
+            { id: 'm298', name: 'بانادول نايت (Panadol Night)', category: 'PAIN', price: 50, tags: ['بندول نايت', 'نوم', 'مسكن مسائي'], icon: '🌙', desc: 'مسكن ومساعد على النوم المريح' },
+            { id: 'm299', name: 'بانادول جوينت (Panadol Joint)', category: 'PAIN', price: 67, tags: ['بندول جوينت', 'مفاصل ممتد'], icon: '💊', desc: 'مسكن ممتد 8 ساعات لآلام المفاصل' },
+            { id: 'm300', name: 'بانادول ساينس (Panadol Sinus)', category: 'COLD', price: 56, tags: ['بندول جيوب انفي', 'ضغط رأس'], icon: '💊', desc: 'علاج صداع وضغط الجيوب الأنفية' },
+            { id: 'm301', name: 'سيتال اكسترا (Cetal Extra)', category: 'PAIN', price: 44, tags: ['سيتال اكسترا', 'كافيين'], icon: '💊', desc: 'مسكن مضاعف مع كافيين للصداع' },
+            { id: 'm302', name: 'فولتارين لبوس 100 (Voltaren 100 Supp)', category: 'PAIN', price: 54, tags: ['فولتارين لبوس كبار', 'مسكن ظهر'], icon: '💊', desc: 'لبوس كبار مسكن شديد لآلام الظهر والفقرات' },
+            { id: 'm303', name: 'كتوفان حقن (Ketofan Amp)', category: 'PAIN', price: 15, tags: ['حقنة كتوفان', 'مسكن'], icon: '💉', desc: 'حقن كيتوبروفين مسكنة للآلام الحادة' },
+            { id: 'm304', name: 'نوفالجين أقراص (Novalgin)', category: 'PAIN', price: 20, tags: ['نوفالجين', 'مسكن مغص'], icon: '💊', desc: 'مسكن تقليدي معروف للمغص والتقلصات' },
+        ];
+
+        /* ==========================================================================
+           DYNAMIC CUSTOMER GENERATOR ENGINE
+           ========================================================================== */
+        const EGYPTIAN_NAMES = [
+            'الحاج بسيوني', 'أبلة مروة', 'الكابتن هيثم', 'الحاجة أم حازم', 'الأسطى رجب', 
+            'استاذ شريف', 'معلم فرج', 'أم كريم', 'م. تامر', 'زياد الطالب', 'عم جابر',
+            'الدكتورة هناء', 'الحاج متولي', 'المهندس مصطفى', 'أم حنين', 'الأسطى صابر',
+            'الكابتن ميدو', 'أبلة فادية', 'استاذ مدحت', 'الحاجة صفية', 'عم محسب'
+        ];
+
+        const EGYPTIAN_AVATARS = ['👨‍💼', '🧕', '👩', '🧔', '👵', '👨', '🧑', '🧓', '👲', '👴'];
+
+        /* قائمة الأعراض: الزبون بيشتكي من العرض بس، ومفيش اسم دواء أبداً */
+        const SYMPTOM_BANK = [
+            { tags: ['صداع', 'صداع شديد'], words: ['الصداع', 'للصداع'], say: 'عندي صداع جامد ودماغي هتتفلق' },
+            { tags: ['سخونية', 'حرارة', 'سخونية شديدة'], words: ['سخونية', 'حرارة'], say: 'عندي سخونية وجسمي مولّع' },
+            { tags: ['مغص', 'مغص شديد', 'تقلصات'], words: ['مغص', 'تقلصات'], say: 'بطني بتتقطّع من المغص' },
+            { tags: ['كحة', 'سعال', 'كحة ناشفة', 'كحة جافة', 'بلغم'], words: ['كحة', 'سعال', 'بلغم'], say: 'عندي كحة تعباني ومش سايبة صدري' },
+            { tags: ['رشح', 'عطس', 'زكام'], words: ['رشح', 'زكام', 'عطس'], say: 'عندي رشح وعطس ومش بنام من الزكام' },
+            { tags: ['انسداد أنف', 'انسداد', 'احتقان'], words: ['انسداد الأنف', 'احتقان الأنف', 'انسداد أنف'], say: 'مناخيري مسدودة ومش قادر أتنفس' },
+            { tags: ['حساسية', 'حساسية أنف', 'حساسية جلد'], words: ['حساسية'], say: 'عندي حساسية وبعطس وعيني بتدمع' },
+            { tags: ['حموضة', 'حرقان', 'ارتجاع'], words: ['حموضة', 'ارتجاع', 'قرحة'], say: 'معدتي بتحرقني وفيها حموضة جامدة' },
+            { tags: ['انتفاخ', 'هضم'], words: ['انتفاخ', 'غازات', 'عسر هضم'], say: 'بطني منفوخة وهضمي تعبان' },
+            { tags: ['إسهال', 'اسهال'], words: ['إسهال', 'اسهال', 'مطهر معوي', 'دسنتاريا', 'الأميبا', 'اميبا'], say: 'عندي إسهال من الصبح' },
+            { tags: ['امساك', 'امساك شديد', 'ملين'], words: ['إمساك', 'امساك', 'ملين'], say: 'عندي إمساك بقاله أيام' },
+            { tags: ['غثيان', 'ترجيع', 'قيء'], words: ['غثيان', 'قيء', 'ترجيع'], say: 'نفسي بتتقلب وعايز أرجّع' },
+            { tags: ['قولون عصبي', 'قولون'], words: ['قولون'], say: 'القولون عامل معايا مشاكل' },
+            { tags: ['أسنان', 'مسكن اسنان', 'بنج اسنان'], words: ['الأسنان', 'أسنان', 'ضرس'], say: 'ضرسي بيوجعني ومش عارف أنام' },
+            { tags: ['مفاصل', 'عظام', 'روماتيزم'], words: ['مفاصل', 'العظام', 'روماتيزم'], say: 'مفاصلي ورجليا بتوجعني جامد' },
+            { tags: ['عضلات', 'شد عضلي', 'شد', 'ظهر'], words: ['عضلي', 'عضلات', 'الظهر'], say: 'ضهري وعضلاتي مشدودة ومش قادر أتحرك' },
+            { tags: ['زور', 'لوز', 'احتقان زور'], words: ['الزور', 'التهاب اللوز', 'اللوز', 'الحلق'], say: 'زوري بيوجعني ومش قادر أبلع' },
+            { tags: ['ضغط', 'ضغط مرتفع', 'ضغط سريع', 'ضغط مزمن', 'ضغط دائم'], words: ['ضغط الدم', 'ارتفاع الضغط', 'ضغط مرتفع'], say: 'ضغطي عالي وحاسس بدوخة' },
+            { tags: ['سكر', 'سكر نوع تاني'], words: ['السكر', 'سكر الدم'], say: 'السكر عندي عالي' },
+            { tags: ['كوليسترول', 'دهون'], words: ['كوليسترول', 'الدهون'], say: 'التحاليل طلّعت الكوليسترول والدهون عالية' },
+            { tags: ['حكة', 'حساسية بشرة'], words: ['حكة', 'هرش'], say: 'جلدي بياكلني جامد' },
+            { tags: ['جروح', 'حروق', 'مطهر جروح'], words: ['جروح', 'حروق', 'التئام'], say: 'اتعورت وفي جرح محتاج يتطهّر' },
+            { tags: ['حب شباب', 'حبوب'], words: ['حب الشباب', 'الحبوب'], say: 'وشي مليان حبوب' },
+            { tags: ['تساقط شعر', 'تساقط شديد'], words: ['تساقط الشعر', 'الشعر'], say: 'شعري بيقع كتير' },
+            { tags: ['أنيميا', 'حديد'], words: ['أنيميا', 'فقر الدم', 'الحديد'], say: 'حاسس بإرهاق شديد والدكتور قالي عندي أنيميا' },
+            { tags: ['ارهاق', 'نشاط', 'طاقة'], words: ['إرهاق', 'ارهاق', 'الطاقة'], say: 'حاسس بخمول وإرهاق طول اليوم' },
+            { tags: ['دوخة', 'دوار البحر', 'طنين'], words: ['دوخة', 'دوار', 'طنين'], say: 'دايخ ودماغي بتلف بيا' },
+            { tags: ['قلق', 'هلع'], words: ['قلق', 'هلع'], say: 'قلقان ومتوتر وقلبي بيدق جامد' },
+            { tags: ['اكتئاب', 'تحسين مزاج', 'مزاج'], words: ['اكتئاب', 'المزاج'], say: 'نفسيتي تعبانة ومخنوق جداً' },
+            { tags: ['الم اذن', 'مسكن اذن', 'التهاب اذن', 'اذن'], words: ['الأذن', 'أذن'], say: 'ودني بتوجعني جامد' },
+            { tags: ['احمرار', 'عدوى عين', 'قطرة عين', 'مضاد عين', 'جفاف عين'], words: ['العين', 'الرمد'], say: 'عيني حمرا وبتحرقني' },
+            { tags: ['ربو', 'بخاخ ربو', 'بخاخ ضيق تنفس', 'أزمات'], words: ['الربو', 'ضيق التنفس', 'توسيع الشعب'], say: 'صدري بيضيق وبنهج من أقل مجهود' },
+            { tags: ['حرقان بول', 'حسوات'], words: ['حرقان البول', 'حصوات', 'المسالك'], say: 'بحس بحرقان وأنا بدخل الحمام' },
+            { tags: ['بواسير', 'بواسير مرهم'], words: ['بواسير', 'دوالي'], say: 'عندي بواسير وتعباني جداً' },
+            { tags: ['فطريات', 'فطريات قدم', 'فطريات اظافر', 'تنية'], words: ['فطريات', 'فطري'], say: 'عندي فطريات في رجلي وبتحكّني' },
+            { tags: ['نزيف لثة', 'أسنان حساسة'], words: ['اللثة', 'لثة'], say: 'لثتي بتنزف وأسناني حساسة' },
+            { tags: ['تسلخات', 'تسلخات اطفال', 'حفاضات'], words: ['تسلخات', 'الحفاض'], say: 'ابني عنده تسلخات من الحفاضة' },
+            { tags: ['التواء', 'تورم', 'التورم', 'ورم', 'كدمات'], words: ['التواء', 'كدمات'], say: 'رجلي اتلوت وورمت' },
+            { tags: ['صداع نصفي', 'شقيقة', 'صداع نصفي حاد'], words: ['صداع نصفي', 'الشقيقة'], say: 'جاتلي نوبة صداع نصفي ومش شايف قدامي' },
+            { tags: ['تخسيس'], words: ['تخسيس', 'الوزن', 'الشهية'], say: 'عايز أخس وأنزّل وزني' },
+            { tags: ['مناعة', 'فيتامين سي'], words: ['مناعة', 'فيتامين سي'], say: 'مناعتي ضعيفة وبتعب بسرعة' }
+        ];
+
+        // الدوا يعالج العرض لو التاج مطابق أو لو وصفه/تاجاته فيها كلمة مرتبطة بالعرض
+        function medTreatsSymptom(med, sym) {
+            if (!sym) return false;
+            if (med.tags.some(t => sym.tags.includes(t))) return true;
+            const hay = med.tags.join(' ') + ' ' + med.desc;
+            return sym.words.some(w => hay.includes(w));
+        }
+
+        const SYMPTOM_TEMPLATES = [
+            c => `يا دكتور ${c}، ترشحلي إيه يريحني؟`,
+            c => `الله يكرمك يا دكتور ${c}، إيه أحسن حاجة آخدها؟`,
+            c => `يا دكتور ${c} من الصبح، عايز حاجة تريّحني وتكون سريعة.`
+        ];
+
+        /* زباين بجنس ثابت: الاسم والأفاتار والصوت بيتطابقوا */
+        const CUSTOMER_PROFILES = [
+            ['الحاج بسيوني','M'],['أبلة مروة','F'],['الكابتن هيثم','M'],['الحاجة أم حازم','F'],['الأسطى رجب','M'],
+            ['استاذ شريف','M'],['معلم فرج','M'],['أم كريم','F'],['م. تامر','M'],['زياد الطالب','M'],['عم جابر','M'],
+            ['الدكتورة هناء','F'],['الحاج متولي','M'],['المهندس مصطفى','M'],['أم حنين','F'],['الأسطى صابر','M'],
+            ['الكابتن ميدو','M'],['أبلة فادية','F'],['استاذ مدحت','M'],['الحاجة صفية','F'],['عم محسب','M']
+        ].map(([name, gender]) => ({ name, gender }));
+        const AVATARS_BY_GENDER = { M: ['👨‍💼','🧔','👨','🧑','🧓','👴','👲'], F: ['🧕','👩','👵','👩‍💼'] };
+
+        const FEM_MAP = {
+            'محتاج':'محتاجة','عايز':'عايزة','متعود':'متعودة','دايخ':'دايخة','مستعجل':'مستعجلة','عارف':'عارفة',
+            'جاي':'جاية','حاسس':'حاسة','قادر':'قادرة','قلقان':'قلقانة','ومتوتر':'ومتوترة','متوتر':'متوترة',
+            'ومخنوق':'ومخنوقة','مخنوق':'مخنوقة','شايف':'شايفة','تعبان':'تعبانة','لاقي':'لاقية','متشكر':'متشكرة', 'وعايز':'وعايزة','وحاسس':'وحاسة','ومحتاج':'ومحتاجة','وقادر':'وقادرة','ممنون':'ممنونة'
+        };
+        function genderize(text, gender) {
+            if (gender !== 'F') return text;
+            return text.split(' ').map(tok => {
+                const m = tok.match(/^(.*?)([،,.!؟?]*)$/);
+                const f = FEM_MAP[m[1]];
+                return f ? f + m[2] : tok;
+            }).join(' ');
+        }
+        function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        const DIRECT_PHRASES = [
+            n => `مساء الخير يا دكتور، محتاج علبة ${n} لو سمحت.`,
+            n => `صباح الخير يا دكتور، معاك ${n}؟ الدكتور كاتبهولي في الروشتة.`,
+            n => `إزيك يا دكتور، عايز ${n} وياريت يكون موجود.`,
+            n => `السلام عليكم يا دكتور، إدّيني ${n} من فضلك، دي الروشتة بتاعتي.`,
+            n => `لو سمحت يا دكتور، الدكتور كتبلي ${n}، عندك منه؟`,
+            n => `يا دكتور أنا جاي بروشتة فيها ${n}، ممكن تجيبهولي؟`,
+            n => `يا دكتور أنا متعود على ${n}، لو متاح هاته من فضلك.`,
+            n => `الله يسترك يا دكتور، مش لاقي ${n} في أي صيدلية، موجود عندك؟`,
+            n => `حضرتك عندك ${n}؟ الدكتور كاتبه في الروشتة وأنا مستعجل شوية.`,
+            n => `ممكن ${n} يا دكتور؟ ده اللي في الروشتة.`,
+            n => `يا دكتور لفّيت على صيدليات كتير ومالقيتش ${n}، معاك؟`,
+            n => `أنا محتاج ${n} ضروري يا دكتور، اللي كان عندي خلص.`,
+            n => `الروشتة بتقول ${n}، تجيبهولي يا دكتور؟`,
+            n => `ربنا يخليك يا دكتور، ${n} لو سمحت، الدكتور كتبهولي إمبارح.`,
+            n => `يا دكتور فيه عندك ${n}؟ الدكتور مأكد عليا آخده.`,
+            n => `إديني ${n} يا دكتور، وبص في الروشتة لو عايز تتأكد.`,
+            n => `معلش يا دكتور، ${n} لو متوفر، الدكتور موصيني عليه.`,
+            n => `يا دكتور أنا دايخ على الصيدليات، ${n} موجود عندك؟`,
+            n => `يا دكتور الروشتة مكتوب فيها ${n}، أنا مش عارف أنطقه كويس بس شوفلي.`,
+            n => `تعبتك معايا يا دكتور، بس محتاج ${n} النهارده ضروري.`,
+            n => `لو ${n} موجود يا دكتور خليه ليا، الدكتور قالي ماستغناش عنه.`,
+            n => `طب قولي يا دكتور، ${n} متاح؟ عايزه بالروشتة دي.`
+        ];
+
+        const THANKS_PHRASES = [
+            'ربنا يخليك يا دكتور، ألف شكر!', 'تسلم إيدك يا دكتور!', 'كتر خيرك يا دكتور، ربنا يكرمك!',
+            'الله يبارك فيك يا دكتور!', 'جزاك الله خير يا دكتور!', 'ميرسي أوي يا دكتور، تعبتك معايا.',
+            'يعطيك العافية يا دكتور، الله ينور!', 'شكراً يا دكتور، ربنا يوفقك!', 'إيدك تتلف في حرير يا دكتور!',
+            'ربنا يجعله شفا بإذن الله، متشكر يا دكتور!', 'بجد مش عارف أشكرك إزاي يا دكتور!',
+            'الله ينور عليك يا دكتور!', 'ده انت دكتور محترم والله، شكراً!', 'يسلموا يا دكتور، ربنا يبارك في صيدليتك!',
+            'ربنا يديك على قد نيتك يا دكتور!', 'مش هنسى جميلك يا دكتور، شكراً!'
+        ];
+        const WRONG_DIRECT_PHRASES = [
+            'إيه ده يا دكتور؟ مش ده الدواء اللي طلبته!', 'لا لا يا دكتور، أنا قلت حاجة تانية، راجع الروشتة!',
+            'استنى يا دكتور، ده مش اللي في الروشتة!', 'يا دكتور انت جبت الصنف الغلط، أنا عايز اللي كتبه الدكتور.',
+            'معلش يا دكتور ركّز معايا شوية، ده مش الدواء بتاعي.'
+        ];
+        const WRONG_SYMPTOM_PHRASES = [
+            'يا دكتور ده مش مناسب للي أنا حاسس بيه!', 'لا يا دكتور، الدواء ده ملوش علاقة بتعبي.',
+            'إنت متأكد يا دكتور؟ الدواء ده مش هيريحني.', 'يا دكتور افتكر أنا جيتلك ليه، ده مش علاجي.',
+            'استنى يا دكتور، ده مش اللي يناسب حالتي!'
+        ];
+
+        function generateRandomCustomerPreset() {
+            const profile = pickRandom(CUSTOMER_PROFILES);
+            const avatar = pickRandom(AVATARS_BY_GENDER[profile.gender]);
+            const isDirect = Math.random() < 0.50;
+
+            if (isDirect) {
+                const randMed = pickRandom(MEDICINES);
+                return {
+                    type: 'DIRECT',
+                    medId: randMed.id,
+                    text: genderize(pickRandom(DIRECT_PHRASES)(randMed.name), profile.gender),
+                    avatar, name: profile.name, gender: profile.gender
+                };
+            }
+
+            const usable = SYMPTOM_BANK.filter(sy => MEDICINES.some(m => medTreatsSymptom(m, sy)));
+            const sym = pickRandom(usable);
+            const tpl = pickRandom(SYMPTOM_TEMPLATES);
+            return {
+                type: 'SYMPTOM',
+                symptom: sym,
+                text: genderize(tpl(sym.say), profile.gender),
+                avatar, name: profile.name, gender: profile.gender
+            };
+        }
+
+        /* ==========================================================================
+           GAME STATE & PERSISTENCE
+           ========================================================================== */
+        let gameState = {
+            level: 1,
+            unlockedLevels: 1,
+            money: 0,
+            targetMoney: 500,
+            rating: 4.5,
+            timeLeft: 600,
+            customers: [],
+            activeCustomerIndex: null,
+            selectedMedicineId: null,
+            maxCustomers: 2,
+            waitTime: 120,
+            sfxVolume: 0.8,
+            stats: { served: 0, left: 0, totalEarned: 0 },
+            currentCategoryFilter: 'ALL',
+            searchQuery: ''
+        };
+
+        gameState.pharmacyName = '';
+        gameState.paused = false;
+
+        /* ===== اسم الصيدلية ===== */
+        function getPharmacyDisplayName() {
+            const n = (gameState.pharmacyName || '').trim();
+            if (!n) return 'صيدليتك';
+            return /^صيدلي[ةه]/.test(n) ? n : 'صيدلية ' + n;
+        }
+        function applyPharmacyName() {
+            const full = getPharmacyDisplayName();
+            const h = document.getElementById('pharmacy-title');
+            if (h) h.textContent = full;
+            const ex = document.getElementById('exit-pharmacy-name');
+            if (ex) ex.textContent = full;
+            document.title = full + ' - محاكاة الصيدلي المصري';
+        }
+        function commitPharmacyName() {
+            const inp = document.getElementById('pharmacy-name-input');
+            if (!inp) return;
+            const v = inp.value.trim().replace(/\s+/g, ' ').slice(0, 30);
+            if (v === (gameState.pharmacyName || '')) return;
+            gameState.pharmacyName = v;
+            applyPharmacyName();
+            saveProgress();
+            runSequentialIntro(true);
+        }
+
+        let mainTimerInterval = null;
+        let customerSpawnInterval = null;
+
+        function calculateTargetForLevel(lvl) {
+            // المرحلة 1 = 500 ج.م، وبعدها بيزيد 300 ثابتة في كل مرحلة
+            return 500 + 300 * (lvl - 1);
+        }
+
+        function calculateTimeForLevel(lvl) {
+            // المرحلة 1 = 10 دقايق (600 ثانية)، وبعدها بيزيد 3 دقايق (180 ثانية) في كل مرحلة
+            return 600 + 180 * (lvl - 1);
+        }
+
+        function formatLevelMinutes(sec) {
+            return `${Math.round(sec / 60)} دقيقة`;
+        }
+
+        const PROFILES_KEY = 'elmoez_pharmacy_profiles';
+        const CURRENT_KEY = 'elmoez_pharmacy_current';
+        let currentPlayer = null;
+        let selectedProfile = null;
+        let unlockedProfile = null;   // الملف اللي اتفتح بالباسورد في الجلسة دي
+        const pinAttempts = {};
+        let pinCtx = null;
+
+        /* ===== باسورد الملفات (4 أرقام) ===== */
+        function hashPin(pin, salt) {
+            const s = salt + ':' + pin;
+            let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+            for (let i = 0; i < s.length; i++) {
+                const ch = s.charCodeAt(i);
+                h1 = Math.imul(h1 ^ ch, 2654435761);
+                h2 = Math.imul(h2 ^ ch, 1597334677);
+            }
+            h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+            h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+            return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+        }
+        function makePin(pin) {
+            const salt = Math.random().toString(36).slice(2, 10);
+            return { salt: salt, hash: hashPin(pin, salt) };
+        }
+        function checkPin(profile, pin) {
+            return !!(profile && profile.pin && profile.pin.hash === hashPin(pin, profile.pin.salt));
+        }
+        function openPinModal(ctx) {
+            pinCtx = ctx;
+            const titles = { enter: 'ادخل الباسورد', set: 'اعمل باسورد لملفك', del: 'تأكيد مسح الملف' };
+            const texts = {
+                enter: 'ملف "' + ctx.name + '" محمي. اكتب الباسورد (4 أرقام).',
+                set: 'ملف "' + ctx.name + '" لسه من غير باسورد. اعمل باسورد من 4 أرقام عشان محدش يلعب مكانك.',
+                del: 'اكتب باسورد ملف "' + ctx.name + '" عشان تمسحه.'
+            };
+            document.getElementById('pin-title').textContent = titles[ctx.mode];
+            document.getElementById('pin-text').textContent = texts[ctx.mode];
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-input2').value = '';
+            document.getElementById('pin-input2').classList.toggle('hidden', ctx.mode !== 'set');
+            document.getElementById('pin-error').textContent = '';
+            document.getElementById('pin-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('pin-input').focus(), 50);
+        }
+        function closePinModal() {
+            document.getElementById('pin-modal').classList.add('hidden');
+            pinCtx = null;
+        }
+        function submitPinModal() {
+            if (!pinCtx) return;
+            const err = document.getElementById('pin-error');
+            const p1 = document.getElementById('pin-input').value;
+            const p2 = document.getElementById('pin-input2').value;
+            const all = readProfiles();
+            const prof = all[pinCtx.name];
+            if (!prof) { closePinModal(); return; }
+            if (!/^\d{4}$/.test(p1)) { err.textContent = 'الباسورد لازم يكون 4 أرقام.'; return; }
+            const ok = pinCtx.onOk;
+            if (pinCtx.mode === 'set') {
+                if (p1 !== p2) { err.textContent = 'الباسوردين مش متطابقين.'; return; }
+                prof.pin = makePin(p1);
+                writeProfiles(all);
+                closePinModal();
+                if (ok) ok();
+                return;
+            }
+            const st = pinAttempts[pinCtx.name] || { n: 0, until: 0 };
+            if (Date.now() < st.until) {
+                err.textContent = 'محاولات كتير غلط. استنى ' + Math.ceil((st.until - Date.now()) / 1000) + ' ثانية.';
+                return;
+            }
+            if (!checkPin(prof, p1)) {
+                st.n++;
+                if (st.n >= 5) { st.n = 0; st.until = Date.now() + 30000; err.textContent = 'محاولات كتير غلط. استنى 30 ثانية.'; }
+                else err.textContent = 'الباسورد غلط.';
+                pinAttempts[pinCtx.name] = st;
+                document.getElementById('pin-input').value = '';
+                return;
+            }
+            delete pinAttempts[pinCtx.name];
+            closePinModal();
+            if (ok) ok();
+        }
+
+        function readProfiles() {
+            try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || {}; } catch (e) { return {}; }
+        }
+        function writeProfiles(p) {
+            try { localStorage.setItem(PROFILES_KEY, JSON.stringify(p)); } catch (e) { console.error("Save error", e); }
+        }
+
+        function syncSettingsUI() {
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+            const txt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('setting-volume', Math.round(gameState.sfxVolume * 100));
+            set('setting-max-customers', gameState.maxCustomers);
+            set('setting-wait-time', gameState.waitTime);
+            txt('vol-disp', `${Math.round(gameState.sfxVolume * 100)}%`);
+            txt('max-cust-disp', `${gameState.maxCustomers} عملاء`);
+            txt('wait-time-disp', `${gameState.waitTime} ثانية`);
+            txt('max-queue-disp', gameState.maxCustomers);
+        }
+
+        function updatePlayerChip() {
+            const el = document.getElementById('player-chip');
+            if (el) el.textContent = currentPlayer ? '👤 ' + currentPlayer : '';
+        }
+
+        function applyProfile(name) {
+            const p = readProfiles()[name];
+            if (!p) return false;
+            currentPlayer = name;
+            gameState.level = p.level || 1;
+            gameState.unlockedLevels = p.unlockedLevels || gameState.level;
+            gameState.rating = p.rating || 4.5;
+            gameState.sfxVolume = p.sfxVolume !== undefined ? p.sfxVolume : 0.8;
+            gameState.maxCustomers = p.maxCustomers || 2;
+            gameState.waitTime = p.waitTime || 120;
+            gameState.pharmacyName = p.pharmacyName || '';
+            const pin = document.getElementById('pharmacy-name-input');
+            if (pin) pin.value = gameState.pharmacyName;
+            applyPharmacyName();
+            try { localStorage.setItem(CURRENT_KEY, name); } catch (e) {}
+            syncSettingsUI();
+            updatePlayerChip();
+            return true;
+        }
+
+        function loadSavedProgress() {
+            let last = null;
+            try { last = localStorage.getItem(CURRENT_KEY); } catch (e) {}
+            // مفيش دخول تلقائي: لازم اللاعب يختار ملفه ويكتب الباسورد. بنحمّل اسم الصيدلية للعرض بس.
+            selectedProfile = null;
+            unlockedProfile = null;
+            if (last && readProfiles()[last]) applyProfile(last);
+        }
+
+        function saveProgress() {
+            if (!currentPlayer || unlockedProfile !== currentPlayer) return;
+            const all = readProfiles();
+            const oldPin = (all[currentPlayer] || {}).pin;
+            all[currentPlayer] = {
+                pin: oldPin,
+                level: gameState.level,
+                unlockedLevels: Math.max(gameState.level, gameState.unlockedLevels),
+                rating: gameState.rating,
+                sfxVolume: gameState.sfxVolume,
+                maxCustomers: gameState.maxCustomers,
+                waitTime: gameState.waitTime,
+                pharmacyName: gameState.pharmacyName || ''
+            };
+            writeProfiles(all);
+        }
+
+        function renderProfiles() {
+            const list = document.getElementById('profile-list');
+            const btn = document.getElementById('btn-start-game');
+            if (!list || !btn) return;
+            const all = readProfiles();
+            const names = Object.keys(all);
+            list.innerHTML = '';
+
+            if (names.length === 0) {
+                const p = document.createElement('p');
+                p.className = 'text-xs text-slate-500 py-2';
+                p.textContent = 'مفيش لاعبين لسه، اكتب اسمك تحت واضغط إضافة.';
+                list.appendChild(p);
+            }
+
+            names.forEach(name => {
+                const isSel = (name === selectedProfile);
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between gap-2 px-3 py-2 rounded-xl border cursor-pointer text-sm font-bold transition ' +
+                    (isSel ? 'bg-emerald-900/50 border-emerald-400 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500');
+                row.onclick = () => selectProfile(name);
+
+                const label = document.createElement('span');
+                label.textContent = '👤 ' + name;
+                const lvl = document.createElement('span');
+                lvl.className = 'text-[11px] text-amber-400 font-black mr-auto';
+                lvl.textContent = 'مرحلة ' + (all[name].level || 1);
+                const del = document.createElement('button');
+                del.className = 'text-rose-400 hover:text-rose-300 text-xs px-1';
+                del.title = 'حذف الملف';
+                del.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                del.onclick = (ev) => deleteProfile(name, ev);
+
+                row.append(label, lvl, del);
+                list.appendChild(row);
+            });
+
+            const sel = selectedProfile && all[selectedProfile];
+            btn.disabled = !sel;
+            btn.textContent = '';
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-play ml-2';
+            btn.appendChild(icon);
+            let label = ' ابدأ الشيفت يا دكتور';
+            if (sel) {
+                label += ' ' + selectedProfile;
+                if ((all[selectedProfile].level || 1) > 1) label += ' (مرحلة ' + all[selectedProfile].level + ')';
+            }
+            btn.appendChild(document.createTextNode(label));
+        }
+
+        function selectProfile(name) {
+            const p = readProfiles()[name];
+            if (!p) return;
+            const proceed = () => {
+                unlockedProfile = name;
+                selectedProfile = name;
+                applyProfile(name);
+                const msg = document.getElementById('profile-msg');
+                if (msg) msg.textContent = '';
+                renderProfiles();
+                if (gameState.pharmacyName) runSequentialIntro(true);
+            };
+            if (unlockedProfile === name) { proceed(); return; }
+            openPinModal({ mode: p.pin ? 'enter' : 'set', name: name, onOk: proceed });
+        }
+
+        function createProfile() {
+            const inp = document.getElementById('new-profile-name');
+            const msg = document.getElementById('profile-msg');
+            const name = inp.value.trim().replace(/\s+/g, ' ').slice(0, 20);
+            if (!name) { msg.textContent = 'اكتب اسم اللاعب الأول.'; return; }
+            const all = readProfiles();
+            if (all[name]) { msg.textContent = 'الاسم ده موجود بالفعل، اختار اسم تاني.'; return; }
+            const pinEl = document.getElementById('new-profile-pin');
+            const pinVal = pinEl ? pinEl.value : '';
+            if (!/^\d{4}$/.test(pinVal)) { msg.textContent = 'اكتب باسورد من 4 أرقام للملف.'; return; }
+            const pinp = document.getElementById('pharmacy-name-input');
+            const pname = pinp ? pinp.value.trim().replace(/\s+/g, ' ').slice(0, 30) : '';
+            all[name] = { pin: makePin(pinVal), level: 1, unlockedLevels: 1, rating: 4.5, sfxVolume: 0.8, maxCustomers: 2, waitTime: 120, pharmacyName: pname };
+            writeProfiles(all);
+            inp.value = '';
+            if (pinEl) pinEl.value = '';
+            unlockedProfile = name;
+            selectProfile(name);
+        }
+
+        function deleteProfile(name, ev) {
+            ev.stopPropagation();
+            const p = readProfiles()[name];
+            if (!p) return;
+            const doDelete = () => {
+                if (!confirm(`متأكد إنك عايز تمسح ملف "${name}" وكل تقدمه؟`)) return;
+                const all = readProfiles();
+                delete all[name];
+                writeProfiles(all);
+                if (unlockedProfile === name) unlockedProfile = null;
+                if (selectedProfile === name) { selectedProfile = null; }
+                if (currentPlayer === name) { currentPlayer = null; updatePlayerChip(); }
+                renderProfiles();
+            };
+            if (!p.pin) { doDelete(); return; }
+            openPinModal({ mode: 'del', name: name, onOk: doDelete });
+        }
+
+        /* ==========================================================================
+           AUDIO SYNTHESIZER & SPEECH
+           ========================================================================== */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (gameState.sfxVolume <= 0) return;
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                gain.gain.setValueAtTime(gameState.sfxVolume, now);
+
+                if (type === 'bell') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'cash') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(987.77, now);
+                    osc.frequency.setValueAtTime(1318.51, now + 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(130, now + 0.25);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'win') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                } else if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(700, now + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                }
+            } catch (e) {}
+        }
+
+        const SPEECH_RATE = 1.2;      // سرعة الصوت المحلي (1 = عادي)
+        const MALE_ONLINE_RATE = 0.85;   // صوت الرجالة الأونلاين (أقل = أتخن وأبطأ)
+        const ONLINE_PLAYBACK_RATE = 1.3; // سرعة الصوت الأونلاين
+
+        // تقريب النطق للهجة المصرية: ث→س، ذ/ظ→ز، وق→همزة في الكلمات الشائعة
+        function egyptianize(text) {
+            const qWords = ['قادر','قالي','قال','قلبي','قدامي','قلقان','القولون','قولوني','يقع','قدام','أقدر','مقدر'];
+            qWords.forEach(w => { text = text.split(w).join(w.replace(/ق/g, 'أ')); });
+            return text.replace(/ث/g, 'س').replace(/[ذظ]/g, 'ز');
+        }
+
+        let speechToken = 0;
+        let speechWarned = false;
+        let currentTtsAudio = null;
+
+        const MALE_VOICE_HINT = /naayf|hamed|maged|majed|tarik|shakir|male|حامد|ماجد|طارق|شاكر|نايف/i;
+        const FEMALE_VOICE_HINT = /hoda|salma|laila|zariyah|female|amina|maryam|هدى|سلمى|ليلى|زارية/i;
+
+        // بيرجع صوت عربي مناسب للجنس: {voice, exact} (exact = الاسم بيدل على الجنس)
+        function getArabicVoice(gender) {
+            if (!('speechSynthesis' in window)) return null;
+            const all = (window.speechSynthesis.getVoices() || []).filter(v => /^ar/i.test(v.lang));
+            if (!all.length) return null;
+            const mine = gender === 'F' ? FEMALE_VOICE_HINT : MALE_VOICE_HINT;
+            const other = gender === 'F' ? MALE_VOICE_HINT : FEMALE_VOICE_HINT;
+            const exact = all.find(v => mine.test(v.name));
+            if (exact) return { voice: exact, exact: true };
+            const neutral = all.find(v => /^ar[-_]EG/i.test(v.lang) && !other.test(v.name)) || all.find(v => !other.test(v.name)) || all[0];
+            return { voice: neutral, exact: false };
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => getArabicVoice();
+        }
+
+        // يشيل الأسماء الإنجليزية اللي بين الأقواس (الاسم العربي موجود قبلها) والإيموجي
+        function cleanForSpeech(text) {
+            return text
+                .replace(/\([^)]*[A-Za-z][^)]*\)/g, ' ')
+                .replace(/[A-Za-z]+/g, ' ')
+                .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function splitChunks(text, max = 160) {
+            const parts = text.split(/(?<=[.،,!؟?])\s*/).filter(Boolean);
+            const chunks = [];
+            let cur = '';
+            parts.forEach(p => {
+                if ((cur + ' ' + p).trim().length > max && cur) { chunks.push(cur.trim()); cur = p; }
+                else cur = (cur + ' ' + p).trim();
+            });
+            if (cur) chunks.push(cur.trim());
+            return chunks;
+        }
+
+        function speakText(rawText, gender = 'M') {
+            const text = egyptianize(cleanForSpeech(rawText));
+            const myToken = ++speechToken;
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            if (currentTtsAudio) { try { currentTtsAudio.pause(); } catch (e) {} currentTtsAudio = null; }
+            if (!text) return;
+
+            const pick = getArabicVoice(gender);
+            if (pick) {
+                const voice = pick.voice;
+                // صوت عربي موجود على الجهاز
+                const u = new SpeechSynthesisUtterance(text);
+                u.voice = voice;
+                u.lang = voice.lang;
+                u.rate = SPEECH_RATE;
+                // لو مفيش صوت رجالي/نسائي مخصوص، نفرّق بينهم بدرجة الصوت
+                u.pitch = pick.exact ? (gender === 'F' ? 1.05 : 0.9) : (gender === 'F' ? 1.25 : 0.65);
+                u.volume = Math.max(0.2, gameState.sfxVolume);
+                window.speechSynthesis.speak(u);
+                return;
+            }
+
+            // مفيش صوت عربي على الجهاز: نستخدم النطق الأونلاين (محتاج إنترنت)
+            const chunks = splitChunks(text);
+            const playNext = (i) => {
+                if (myToken !== speechToken || i >= chunks.length) return;
+                const audio = new Audio();
+                audio.referrerPolicy = 'no-referrer';
+                audio.volume = Math.max(0.2, gameState.sfxVolume);
+                // الصوت الأونلاين نسائي: للرجالة بنخفّض الطبقة (الصوت أتخن وأبطأ شوية)
+                const isMale = gender !== 'F';
+                const rate = isMale ? MALE_ONLINE_RATE : ONLINE_PLAYBACK_RATE;
+                audio.defaultPlaybackRate = rate;
+                audio.playbackRate = rate;
+                audio.preservesPitch = !isMale;
+                audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=' + encodeURIComponent(chunks[i]);
+                currentTtsAudio = audio;
+                audio.onended = () => playNext(i + 1);
+                audio.onerror = () => {
+                    if (!speechWarned) {
+                        speechWarned = true;
+                        showToast('مش قادر أنطق عربي: مفيش صوت عربي على الجهاز والنطق الأونلاين مش شغال (اتأكد من النت).', 'error');
+                    }
+                };
+                audio.play().catch(() => audio.onerror());
+            };
+            playNext(0);
+        }
+
+        /* ==========================================================================
+           INTRO ANIMATION
+           ========================================================================== */
+        window.onload = function() {
+            loadSavedProgress();
+            renderMedicinesGrid();
+            renderGuideContent();
+            // الإنترو الأساسي يبدأ بعد ما تسلسل الافتتاح (الشعار ← presents ← Apothecary) يخلص
+            if (window.__splashDone) runSequentialIntro();
+            else window.__onSplashDone = function () { runSequentialIntro(); };
+        };
+
+        function runSequentialIntro(quick) {
+            const container = document.getElementById('intro-words');
+            container.innerHTML = '';
+
+            const palette = ['text-emerald-400 font-black', 'text-amber-400 font-black', 'text-teal-300 font-black', 'text-cyan-300 font-black'];
+            const nameWords = getPharmacyDisplayName().split(' ').filter(Boolean);
+            const words = nameWords.map((w, i) => ({ text: w, color: palette[i % palette.length] }));
+            words.push({ text: 'ترحب بكم!', color: 'text-emerald-300 font-black drop-shadow-lg' });
+
+            words.forEach((item, index) => {
+                const span = document.createElement('span');
+                span.className = `word-reveal text-3xl sm:text-5xl tracking-wide ${item.color}`;
+                span.style.animationDelay = `${(index * (quick ? 0.12 : 0.45))}s`;
+                span.textContent = item.text;
+                container.appendChild(span);
+
+                if (!quick) setTimeout(() => { playSound('pop'); }, index * 450);
+            });
+
+            if (quick) {
+                document.getElementById('intro-subtext').classList.remove('opacity-0');
+                document.getElementById('intro-actions').classList.remove('opacity-0');
+                return;
+            }
+
+            setTimeout(() => {
+                document.getElementById('intro-subtext').classList.remove('opacity-0');
+                document.getElementById('intro-actions').classList.remove('opacity-0');
+
+                renderProfiles();
+            }, words.length * 450 + 200);
+        }
+
+        function startGameFromIntro() {
+            if (!selectedProfile || unlockedProfile !== selectedProfile || !applyProfile(selectedProfile)) {
+                document.getElementById('profile-msg').textContent = 'اختار لاعب أو اعمل ملف جديد الأول.';
+                return;
+            }
+            const pin = document.getElementById('pharmacy-name-input');
+            const typed = pin ? pin.value.trim().replace(/\s+/g, ' ').slice(0, 30) : '';
+            if (!typed) {
+                document.getElementById('profile-msg').textContent = 'اكتب اسم صيدليتك الأول.';
+                return;
+            }
+            gameState.pharmacyName = typed;
+            applyPharmacyName();
+            saveProgress();
+            document.getElementById('intro-overlay').classList.add('transition-opacity', 'duration-500', 'opacity-0');
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.add('hidden');
+                initGame();
+            }, 500);
+        }
+
+        /* ==========================================================================
+           CORE GAME ENGINE
+           ========================================================================== */
+        function initGame() {
+            gameState.targetMoney = calculateTargetForLevel(gameState.level);
+            gameState.money = 0;
+            gameState.timeLeft = calculateTimeForLevel(gameState.level);
+            gameState.customers = [];
+            gameState.activeCustomerIndex = null;
+            gameState.selectedMedicineId = null;
+            gameState.paused = false;
+
+            updateUIHeader();
+            updateTimerDisplay();
+
+            if (mainTimerInterval) clearInterval(mainTimerInterval);
+            if (customerSpawnInterval) clearInterval(customerSpawnInterval);
+
+            mainTimerInterval = setInterval(gameTimerTick, 1000);
+            customerSpawnInterval = setInterval(checkAndSpawnCustomer, 3000);
+
+            spawnCustomer();
+            spawnCustomer();
+        }
+
+        function gameTimerTick() {
+            if (gameState.paused) return;
+            if (gameState.timeLeft > 0) {
+                gameState.timeLeft--;
+                updateTimerDisplay();
+            } else {
+                checkLevelOutcome();
+            }
+
+            gameState.customers.forEach((cust, index) => {
+                if (cust.currentWait > 0) {
+                    cust.currentWait--;
+                } else {
+                    customerLeaveAngry(index);
+                }
+            });
+
+            renderCustomersQueue();
+        }
+
+        function checkAndSpawnCustomer() {
+            if (gameState.paused) return;
+            if (gameState.customers.length < gameState.maxCustomers) {
+                if (Math.random() < 0.75) {
+                    spawnCustomer();
+                }
+            }
+        }
+
+        function spawnCustomer() {
+            if (gameState.customers.length >= gameState.maxCustomers) return;
+
+            const randomPreset = generateRandomCustomerPreset();
+            const newCust = {
+                id: 'cust_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                name: randomPreset.name,
+                avatar: randomPreset.avatar,
+                type: randomPreset.type,
+                medId: randomPreset.medId || null,
+                symptom: randomPreset.symptom || null,
+                gender: randomPreset.gender || 'M',
+                text: randomPreset.text,
+                maxWait: gameState.waitTime,
+                currentWait: gameState.waitTime
+            };
+
+            gameState.customers.push(newCust);
+            playSound('bell');
+
+            if (gameState.activeCustomerIndex === null) {
+                selectActiveCustomer(0);
+            }
+
+            renderCustomersQueue();
+        }
+
+        function customerLeaveAngry(index) {
+            const cust = gameState.customers[index];
+            if (!cust) return;
+
+            playSound('error');
+            showToast(`غادر ${cust.name} غاضباً بسبب طول الانتظار! (-0.2 تقييم)`, 'error');
+
+            gameState.rating = Math.max(1.0, (gameState.rating - 0.2)).toFixed(1);
+            gameState.stats.left++;
+
+            if (gameState.activeCustomerIndex === index) {
+                gameState.activeCustomerIndex = null;
+                gameState.selectedMedicineId = null;
+                renderActiveDesk();
+            } else if (gameState.activeCustomerIndex > index) {
+                gameState.activeCustomerIndex--;
+            }
+
+            gameState.customers.splice(index, 1);
+            saveProgress();
+            updateUIHeader();
+            renderCustomersQueue();
+        }
+
+        /* ==========================================================================
+           UI RENDERERS & DISPENSING
+           ========================================================================== */
+        function updateUIHeader() {
+            document.getElementById('level-disp').textContent = gameState.level;
+            document.getElementById('money-disp').textContent = gameState.money.toLocaleString('ar-EG');
+            document.getElementById('target-disp').textContent = gameState.targetMoney.toLocaleString('ar-EG');
+            
+            document.getElementById('level-disp-mb').textContent = gameState.level;
+            document.getElementById('money-disp-mb').textContent = gameState.money.toLocaleString('ar-EG');
+            document.getElementById('target-disp-mb').textContent = gameState.targetMoney.toLocaleString('ar-EG');
+
+            document.getElementById('queue-count').textContent = gameState.customers.length;
+            document.getElementById('max-queue-disp').textContent = gameState.maxCustomers;
+
+            const starsContainer = document.getElementById('rating-stars');
+            let starsHTML = '';
+            const fullStars = Math.floor(gameState.rating);
+            for (let i = 0; i < 5; i++) {
+                if (i < fullStars) {
+                    starsHTML += '<i class="fa-solid fa-star"></i>';
+                } else {
+                    starsHTML += '<i class="fa-solid fa-star text-slate-700"></i>';
+                }
+            }
+            starsHTML += `<span class="mr-1 text-[11px] text-slate-300">(${gameState.rating})</span>`;
+            starsContainer.innerHTML = starsHTML;
+        }
+
+        function updateTimerDisplay() {
+            const min = Math.floor(gameState.timeLeft / 60).toString().padStart(2, '0');
+            const sec = (gameState.timeLeft % 60).toString().padStart(2, '0');
+            const formatted = `${min}:${sec}`;
+            document.getElementById('timer-disp').textContent = formatted;
+            document.getElementById('timer-disp-mb').textContent = formatted;
+        }
+
+        function renderCustomersQueue() {
+            const container = document.getElementById('customers-container');
+            container.innerHTML = '';
+
+            if (gameState.customers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-slate-500 py-6 text-xs font-semibold">
+                        لا يوجد عملاء بالطابور حالياً..
+                    </div>
+                `;
+                return;
+            }
+
+            gameState.customers.forEach((cust, index) => {
+                const isActive = (gameState.activeCustomerIndex === index);
+                const waitPct = Math.max(0, (cust.currentWait / cust.maxWait) * 100);
+                
+                let progressColor = 'bg-emerald-500';
+                if (waitPct < 30) progressColor = 'bg-rose-500 animate-pulse';
+                else if (waitPct < 60) progressColor = 'bg-amber-500';
+
+                const card = document.createElement('div');
+                card.className = `customer-card p-2.5 rounded-xl border cursor-pointer flex flex-col justify-between ${
+                    isActive 
+                        ? 'bg-slate-800 border-emerald-500 shadow ring-1 ring-emerald-500/50' 
+                        : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                }`;
+                card.onclick = () => selectActiveCustomer(index);
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">${cust.avatar}</span>
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-100">${cust.name}</h4>
+                                <span class="text-[10px] text-slate-400 block truncate max-w-[150px]">${cust.text}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-mono font-bold text-emerald-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">${cust.currentWait}ث</span>
+                    </div>
+
+                    <div class="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                        <div class="h-full ${progressColor} transition-all duration-1000" style="width: ${waitPct}%"></div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectActiveCustomer(index) {
+            if (index < 0 || index >= gameState.customers.length) return;
+            gameState.activeCustomerIndex = index;
+            renderCustomersQueue();
+            renderActiveDesk();
+            speakActiveCustomer();
+        }
+
+        function renderActiveDesk() {
+            const emptyState = document.getElementById('active-desk-empty');
+            const contentState = document.getElementById('active-desk-content');
+
+            if (gameState.activeCustomerIndex === null || !gameState.customers[gameState.activeCustomerIndex]) {
+                emptyState.classList.remove('hidden');
+                contentState.classList.add('hidden');
+                return;
+            }
+
+            const cust = gameState.customers[gameState.activeCustomerIndex];
+            emptyState.classList.add('hidden');
+            contentState.classList.remove('hidden');
+
+            document.getElementById('active-avatar').textContent = cust.avatar;
+            document.getElementById('active-name').textContent = cust.name;
+            document.getElementById('active-dialog').textContent = `"${cust.text}"`;
+
+            const typeBadge = document.getElementById('active-type-badge');
+            if (cust.type === 'DIRECT') {
+                typeBadge.textContent = 'روشتة: دواء بالاسم';
+                typeBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30';
+            } else {
+                typeBadge.textContent = 'شكوى من عرض: رشّحله العلاج';
+                typeBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30';
+            }
+
+            updateSelectedMedicineUI();
+        }
+
+        function speakActiveCustomer() {
+            if (gameState.activeCustomerIndex !== null && gameState.customers[gameState.activeCustomerIndex]) {
+                const c = gameState.customers[gameState.activeCustomerIndex];
+                speakText(c.text, c.gender);
+            }
+        }
+
+        function renderMedicinesGrid() {
+            const container = document.getElementById('medicines-grid');
+            container.innerHTML = '';
+
+            const query = gameState.searchQuery.toLowerCase().trim();
+
+            const filtered = MEDICINES.filter(med => {
+                const catMatch = (gameState.currentCategoryFilter === 'ALL' || med.category === gameState.currentCategoryFilter);
+                const searchMatch = !query || 
+                    med.name.toLowerCase().includes(query) ||
+                    med.desc.toLowerCase().includes(query) ||
+                    med.tags.some(t => t.toLowerCase().includes(query));
+
+                return catMatch && searchMatch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center text-slate-500 py-8 text-xs font-semibold">
+                        لا توجد أدوية مطابقة للبحث من بين الأدوية المعروضة..
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(med => {
+                const isSelected = (gameState.selectedMedicineId === med.id);
+
+                const card = document.createElement('div');
+                card.className = `shelf-item p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer ${
+                    isSelected 
+                        ? 'bg-emerald-950/90 border-emerald-400 ring-1 ring-emerald-500/50 shadow' 
+                        : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                }`;
+                card.onclick = () => selectMedicine(med.id);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-2xl">${med.icon}</span>
+                            <span class="font-black text-emerald-400 text-xs bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">${med.price} ج.م</span>
+                        </div>
+                        <h4 class="font-black text-xs text-slate-100 mb-0.5 leading-tight">${med.name}</h4>
+                        <p class="text-[10px] text-slate-400 leading-tight mb-2 line-clamp-2">${med.desc}</p>
+                    </div>
+
+                    <button class="w-full py-1.5 rounded-lg text-[11px] font-black transition flex items-center justify-center gap-1 ${
+                        isSelected 
+                            ? 'bg-emerald-500 text-slate-950 shadow' 
+                            : 'bg-slate-800 hover:bg-emerald-800 text-slate-200'
+                    }">
+                        <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-hand-pointer'}"></i>
+                        ${isSelected ? 'محدد للصرف' : 'تحديد الدواء'}
+                    </button>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function setCategory(cat) {
+            gameState.currentCategoryFilter = cat;
+            
+            document.querySelectorAll('#category-tabs button').forEach(btn => {
+                btn.className = 'cat-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap text-[11px] font-bold';
+            });
+            event.target.className = 'cat-btn active px-3 py-1 rounded-lg bg-emerald-600 text-white whitespace-nowrap shadow text-[11px] font-bold';
+
+            renderMedicinesGrid();
+        }
+
+        function filterMedicines() {
+            gameState.searchQuery = document.getElementById('search-input').value;
+            renderMedicinesGrid();
+        }
+
+        function selectMedicine(medId) {
+            gameState.selectedMedicineId = medId;
+            renderMedicinesGrid();
+            updateSelectedMedicineUI();
+        }
+
+        function updateSelectedMedicineUI() {
+            const label = document.getElementById('selected-medicine-name');
+            const btn = document.getElementById('btn-dispense');
+
+            if (!gameState.selectedMedicineId) {
+                label.textContent = 'لم يتم اختيار دواء';
+                label.className = 'font-bold text-slate-500 text-xs';
+                btn.disabled = true;
+                return;
+            }
+
+            const med = MEDICINES.find(m => m.id === gameState.selectedMedicineId);
+            if (med) {
+                label.textContent = `${med.name} (${med.price} ج.م)`;
+                label.className = 'font-black text-emerald-400 text-xs';
+                btn.disabled = (gameState.activeCustomerIndex === null);
+            }
+        }
+
+        function dispenseMedicine() {
+            if (gameState.activeCustomerIndex === null || !gameState.selectedMedicineId) return;
+
+            const cust = gameState.customers[gameState.activeCustomerIndex];
+            const med = MEDICINES.find(m => m.id === gameState.selectedMedicineId);
+
+            let isCorrect = false;
+
+            if (cust.type === 'DIRECT') {
+                isCorrect = (cust.medId === med.id);
+            } else if (cust.type === 'SYMPTOM') {
+                isCorrect = medTreatsSymptom(med, cust.symptom);
+            }
+
+            if (isCorrect) {
+                playSound('cash');
+                gameState.money += med.price;
+                gameState.stats.served++;
+                gameState.stats.totalEarned += med.price;
+
+                gameState.rating = Math.min(5.0, (parseFloat(gameState.rating) + 0.1)).toFixed(1);
+
+                const thanksLine = genderize(pickRandom(THANKS_PHRASES), cust.gender);
+                showToast(`أحسنت! صرفت ${med.name} وحصلت على ${med.price} ج.م — ${cust.name}: "${thanksLine}"`, 'success');
+                speakText(thanksLine, cust.gender);
+
+                gameState.customers.splice(gameState.activeCustomerIndex, 1);
+                gameState.activeCustomerIndex = null;
+                gameState.selectedMedicineId = null;
+
+                saveProgress();
+
+                if (gameState.money >= gameState.targetMoney) {
+                    setTimeout(triggerLevelWin, 400);
+                }
+
+            } else {
+                playSound('error');
+                gameState.rating = Math.max(1.0, (gameState.rating - 0.3)).toFixed(1);
+                showToast(`خطأ طـبي! ${med.name} غير مناسب للزبون (-0.3 تقييم)`, 'error');
+                const wrongLine = genderize(pickRandom(cust.type === 'DIRECT' ? WRONG_DIRECT_PHRASES : WRONG_SYMPTOM_PHRASES), cust.gender);
+                showToast(`${cust.name}: "${wrongLine}"`, 'error');
+                speakText(wrongLine, cust.gender);
+                saveProgress();
+            }
+
+            updateUIHeader();
+            renderCustomersQueue();
+            renderActiveDesk();
+            renderMedicinesGrid();
+        }
+
+        /* ==========================================================================
+           LEVEL WIN & LEVEL SELECTOR (50 LEVELS)
+           ========================================================================== */
+        function triggerLevelWin() {
+            playSound('win');
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+
+            gameState.unlockedLevels = Math.max(gameState.unlockedLevels, gameState.level + 1);
+            saveProgress();
+
+            document.getElementById('stat-money').textContent = `${gameState.money.toLocaleString('ar-EG')} ج.م`;
+            document.getElementById('stat-served').textContent = gameState.stats.served;
+            document.getElementById('stat-left').textContent = gameState.stats.left;
+
+            if (gameState.level >= 50) {
+                document.getElementById('level-modal-msg').textContent = 
+                    `مبارك دكتور! لقد أكملت جميع المراحل الـ 50 بنجاح وختمت اللعبة بجدارة!`;
+            } else {
+                document.getElementById('level-modal-msg').textContent = 
+                    `حققت target المرحلة (${gameState.targetMoney.toLocaleString('ar-EG')} ج.م) و${getPharmacyDisplayName()} مستمرة في العطاء!`;
+            }
+
+            document.getElementById('level-modal').classList.remove('hidden');
+        }
+
+        function nextLevel() {
+            if (gameState.level < 50) {
+                gameState.level++;
+            }
+            document.getElementById('level-modal').classList.add('hidden');
+            saveProgress();
+            initGame();
+        }
+
+        function loadSpecificLevel(lvlNum) {
+            gameState.level = lvlNum;
+            saveProgress();
+            closeSettingsModal();
+            initGame();
+            showToast(`تم فتح المرحلة ${lvlNum} - الهدف: ${calculateTargetForLevel(lvlNum).toLocaleString('ar-EG')} ج.م`, 'success');
+        }
+
+        function renderLevelSelector() {
+            const container = document.getElementById('unlocked-levels-grid');
+            container.innerHTML = '';
+
+            const maxUnlocked = Math.max(gameState.unlockedLevels, gameState.level);
+
+            for (let i = 1; i <= Math.max(maxUnlocked, 50); i++) {
+                const isUnlocked = (i <= maxUnlocked);
+                const isCurrent = (i === gameState.level);
+
+                const btn = document.createElement('button');
+                btn.disabled = !isUnlocked;
+
+                if (isCurrent) {
+                    btn.className = 'py-2 rounded-xl font-black bg-emerald-600 text-white border border-emerald-400 text-xs shadow';
+                } else if (isUnlocked) {
+                    btn.className = 'py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 text-xs';
+                } else {
+                    btn.className = 'py-2 rounded-xl font-bold bg-slate-950 text-slate-600 border border-slate-900 text-xs cursor-not-allowed';
+                }
+
+                btn.onclick = () => loadSpecificLevel(i);
+                btn.innerHTML = `
+                    <div class="text-[9px] text-slate-400">مرحلة</div>
+                    <div class="text-xs font-black">${i}</div>
+                    <div class="text-[10px] text-amber-400 font-bold mt-0.5">💰 ${calculateTargetForLevel(i).toLocaleString('ar-EG')} ج.م</div>
+                    <div class="text-[10px] text-cyan-300 font-bold">⏱ ${formatLevelMinutes(calculateTimeForLevel(i))}</div>
+                    ${!isUnlocked ? '<i class="fa-solid fa-lock text-[9px] mt-0.5"></i>' : ''}
+                `;
+
+                container.appendChild(btn);
+            }
+        }
+
+        function checkLevelOutcome() {
+            if (gameState.money >= gameState.targetMoney) {
+                triggerLevelWin();
+            } else {
+                playSound('error');
+                showToast('انتهى وقت الشفت قبل تحقيق الهدف! حاول مجدداً.', 'error');
+                initGame();
+            }
+        }
+
+        /* ==========================================================================
+           OUTRO & SETTINGS MODALS
+           ========================================================================== */
+        function openExitModal() {
+            // وقف اللعبة والوقت وصبر الزباين لحد ما اللاعب يقرر
+            gameState.paused = true;
+            try { if ('speechSynthesis' in window) window.speechSynthesis.pause(); } catch (e) {}
+            document.getElementById('exit-modal').classList.remove('hidden');
+        }
+
+        function closeExitModal() {
+            // الرجوع للشيفت: الوقت يكمل من نفس اللحظة
+            document.getElementById('exit-modal').classList.add('hidden');
+            gameState.paused = false;
+            try { if ('speechSynthesis' in window) window.speechSynthesis.resume(); } catch (e) {}
+        }
+
+        function confirmExitGame() {
+            // الخروج للشاشة الرئيسية: الشيفت بيتقفل، ولما يدخل تاني الوقت يبدأ من الأول
+            gameState.paused = false;
+            try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {}
+            if (mainTimerInterval) clearInterval(mainTimerInterval);
+            if (customerSpawnInterval) clearInterval(customerSpawnInterval);
+            saveProgress();
+            unlockedProfile = null;
+            selectedProfile = null;
+            renderProfiles();
+            document.getElementById('exit-modal').classList.add('hidden');
+            document.getElementById('intro-overlay').classList.remove('hidden', 'opacity-0');
+            runSequentialIntro();
+        }
+
+        function exitGameFully() {
+            if (mainTimerInterval) clearInterval(mainTimerInterval);
+            if (customerSpawnInterval) clearInterval(customerSpawnInterval);
+            saveProgress();
+            unlockedProfile = null;
+            selectedProfile = null;
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            // المتصفح بيسمح بقفل الصفحة بالكود في حالات معينة بس، فلو ماتقفلتش بنعرض رسالة الوداع
+            try { window.close(); } catch (e) {}
+            setTimeout(() => document.getElementById('bye-modal').classList.remove('hidden'), 150);
+        }
+
+        function openSettingsModal() {
+            renderLevelSelector();
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function updateSettings() {
+            const vol = document.getElementById('setting-volume').value;
+            const maxCust = document.getElementById('setting-max-customers').value;
+            const waitTime = document.getElementById('setting-wait-time').value;
+
+            gameState.sfxVolume = vol / 100;
+            gameState.maxCustomers = parseInt(maxCust);
+            gameState.waitTime = parseInt(waitTime);
+
+            document.getElementById('vol-disp').textContent = `${vol}%`;
+            document.getElementById('max-cust-disp').textContent = `${maxCust} عملاء`;
+            document.getElementById('wait-time-disp').textContent = `${waitTime} ثانية`;
+
+            saveProgress();
+            updateUIHeader();
+        }
+
+        function renderGuideContent() {
+            const container = document.getElementById('guide-content');
+            container.innerHTML = '';
+
+            MEDICINES.forEach(med => {
+                const item = document.createElement('div');
+                item.className = 'p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-start gap-2';
+                item.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-1.5 font-black text-emerald-400 text-xs">
+                            <span>${med.icon}</span>
+                            <span>${med.name}</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] mt-0.5">${med.desc}</p>
+                    </div>
+                    <span class="font-black text-amber-400 shrink-0 text-xs">${med.price} ج.م</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function showPharmacistGuide() {
+            document.getElementById('guide-modal').classList.remove('hidden');
+        }
+
+        function closeGuideModal() {
+            document.getElementById('guide-modal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bg = 'bg-slate-900 border-slate-700 text-slate-100';
+            let icon = 'fa-circle-info text-cyan-400';
+
+            if (type === 'success') {
+                bg = 'bg-emerald-950 border-emerald-600 text-emerald-100';
+                icon = 'fa-circle-check text-emerald-400';
+            } else if (type === 'error') {
+                bg = 'bg-rose-950 border-rose-700 text-rose-100';
+                icon = 'fa-triangle-exclamation text-rose-400';
+            }
+
+            toast.className = `${bg} border px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-2xl flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
